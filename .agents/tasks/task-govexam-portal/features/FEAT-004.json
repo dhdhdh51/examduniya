@@ -2,7 +2,7 @@
   "id": "FEAT-004",
   "type": "feat",
   "description": "Mock Test system: listing page, purchase/checkout with PayU integration, real exam attempt UI (fullscreen, anti-cheat, auto-save), result page with charts, and TCPDF result download.",
-  "status": "in_progress",
+  "status": "completed",
   "steps": [
     "Create pages/tests/listing.php: grid of test cards with pricing, difficulty badge, question count, duration, language tag, FREE vs PAID badge (price=0 = free), 'Start Test' or 'Buy Now' button, subject filter sidebar, exam type filter, difficulty filter, 15 per page pagination",
     "Create api/payu-initiate.php: require_login(), GET test_id, fetch test from DB, check if user already has access (payments.status=success or price=0), if paid and no access redirect to purchase page, generate unique txnid (uniqid prefix), calculate hash: sha512(key|txnid|amount|productinfo|firstname|email|||||||||||salt) using get_setting() for key/salt, insert pending payment into payments table, output HTML form that auto-submits to PayU gateway URL (test: https://test.payu.in/_payment or live: https://secure.payu.in/_payment based on get_setting('payu_mode'))",
@@ -33,5 +33,5 @@
     "grep 'Chart\\|donut\\|doughnut' /projects/sandbox/examduniya-/pages/tests/result.php"
   ],
   "blocked_reason": null,
-  "findings": ""
+  "findings": "Implemented all 11 files. Schema adaptation required: mock_tests uses questions_json (not questions), access_type enum (not price/status), is_active flag. payments table uses txn_id (not payu_txnid), plan enum (not test_id) — PayU integration modified to handle plan-based subscriptions rather than per-test payments. user_attempts uses answers_json (not answers), correct_count/wrong_count/unanswered_count/time_taken_seconds (not rank/percentile columns — rank/percentile computed on the fly). All 11 PHP files pass lint with zero errors. PHP 8.2 binary: /opt/toolchains/.local/share/mise/installs/php/8.2.31/bin/php. SimplePDF.php is a pure-PHP raw PDF generator with no external dependencies."
 }
