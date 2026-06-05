@@ -512,6 +512,19 @@ $extra_js = <<<'JS'
 (function () {
   'use strict';
 
+  // Open a specific tab from the URL hash, e.g. /admin/settings.php#payu
+  function openTabFromHash() {
+    var hash = (location.hash || '').replace('#', '').replace('pane-', '').replace('tab-', '');
+    if (!hash) return;
+    var btn = document.getElementById('tab-' + hash);
+    if (btn && window.bootstrap) {
+      try { bootstrap.Tab.getOrCreateInstance(btn).show(); } catch (e) { btn.click(); }
+      btn.scrollIntoView({ block: 'nearest' });
+    }
+  }
+  openTabFromHash();
+  window.addEventListener('hashchange', openTabFromHash);
+
   function csrf() {
     var m = document.querySelector('meta[name="csrf-token"]');
     return m ? m.content : '';

@@ -343,7 +343,7 @@ var CountdownTimer = (function () {
   };
 
   CountdownTimer.prototype.stop = function () {
-    if (self._interval) clearInterval(this._interval);
+    if (this._interval) clearInterval(this._interval);
     this._interval = null;
     this._running  = false;
   };

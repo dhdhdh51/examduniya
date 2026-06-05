@@ -452,8 +452,25 @@ img {
 }
 
 .admin-content {
+  margin-left: 260px;
   padding: 1.5rem;
   flex: 1;
+  min-width: 0;
+}
+
+/* Mobile sidebar toggle (hamburger) */
+.admin-sidebar-toggle {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 1045;
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-md);
 }
 
 /* Sidebar nav links */
@@ -552,6 +569,10 @@ img {
   }
   .admin-main {
     margin-left: 0;
+  }
+  .admin-content {
+    margin-left: 0;
+    padding-top: 4.25rem;
   }
 }
 

@@ -48,6 +48,9 @@ require_once ROOT . '/includes/admin_sidebar.php';
       <a href="/admin/tests/generate.php" class="btn btn-success btn-sm">
         <i class="fas fa-robot me-1"></i>AI Generate
       </a>
+      <a href="/admin/tests/import.php" class="btn btn-outline-success btn-sm">
+        <i class="fas fa-file-csv me-1"></i>Import CSV
+      </a>
       <a href="/admin/tests/add.php" class="btn btn-primary btn-sm">
         <i class="fas fa-plus me-1"></i>Add New
       </a>

@@ -77,9 +77,14 @@ require_once ROOT . '/includes/admin_sidebar.php';
 
   <div class="d-flex align-items-center justify-content-between mb-3">
     <h2 class="mb-0"><i class="fas fa-plus me-2"></i>Add Mock Test</h2>
-    <a href="/admin/tests/list.php" class="btn btn-outline-secondary btn-sm">
-      <i class="fas fa-arrow-left me-1"></i>Back to List
-    </a>
+    <div class="d-flex gap-2">
+      <a href="/admin/tests/import.php" class="btn btn-outline-success btn-sm">
+        <i class="fas fa-file-csv me-1"></i>Import from CSV
+      </a>
+      <a href="/admin/tests/list.php" class="btn btn-outline-secondary btn-sm">
+        <i class="fas fa-arrow-left me-1"></i>Back to List
+      </a>
+    </div>
   </div>
 
   <?php if ($errors): ?>

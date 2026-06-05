@@ -121,6 +121,53 @@ require_once ROOT . '/includes/admin_sidebar.php';
     </div>
   </div>
 
+  <!-- Integrations & Settings quick links -->
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-white fw-semibold d-flex align-items-center justify-content-between">
+      <span><i class="fas fa-plug me-2"></i>Integrations &amp; Settings</span>
+      <a href="/admin/settings.php" class="btn btn-sm btn-outline-primary">Open Settings</a>
+    </div>
+    <div class="card-body">
+      <div class="row g-2 row-cols-2 row-cols-md-4 row-cols-lg-7">
+        <div class="col">
+          <a href="/admin/settings.php#general" class="btn btn-light border w-100 text-start py-2">
+            <i class="fas fa-sliders text-primary me-2"></i>General
+          </a>
+        </div>
+        <div class="col">
+          <a href="/admin/settings.php#google" class="btn btn-light border w-100 text-start py-2">
+            <i class="fab fa-google text-danger me-2"></i>Google OAuth
+          </a>
+        </div>
+        <div class="col">
+          <a href="/admin/settings.php#gemini" class="btn btn-light border w-100 text-start py-2">
+            <i class="fas fa-robot text-success me-2"></i>Gemini AI
+          </a>
+        </div>
+        <div class="col">
+          <a href="/admin/settings.php#telegram" class="btn btn-light border w-100 text-start py-2">
+            <i class="fab fa-telegram text-info me-2"></i>Telegram
+          </a>
+        </div>
+        <div class="col">
+          <a href="/admin/settings.php#smtp" class="btn btn-light border w-100 text-start py-2">
+            <i class="fas fa-envelope text-warning me-2"></i>SMTP Email
+          </a>
+        </div>
+        <div class="col">
+          <a href="/admin/settings.php#payu" class="btn btn-light border w-100 text-start py-2">
+            <i class="fas fa-credit-card text-primary me-2"></i>PayU
+          </a>
+        </div>
+        <div class="col">
+          <a href="/admin/settings.php#maintenance" class="btn btn-light border w-100 text-start py-2">
+            <i class="fas fa-screwdriver-wrench text-secondary me-2"></i>Maintenance
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Charts row -->
   <div class="row g-3 mb-4">
     <div class="col-md-6">

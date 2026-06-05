@@ -9,6 +9,9 @@ function admin_nav_active($path, $current)
     return (strpos($current, $path) !== false) ? 'active' : '';
 }
 ?>
+<button id="sidebarToggle" class="admin-sidebar-toggle btn btn-dark d-lg-none" type="button" aria-label="Toggle menu">
+  <i class="fa-solid fa-bars"></i>
+</button>
 <nav id="adminSidebar" class="admin-sidebar d-flex flex-column">
   <!-- Brand -->
   <div class="admin-sidebar-brand px-3 py-3 border-bottom border-secondary">
