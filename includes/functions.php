@@ -278,6 +278,50 @@ function ai_call_anthropic($p, $prompt)
 }
 
 /**
+ * Build a normalised "fingerprint" of a question for duplicate detection.
+ * Lowercases the question text and strips everything except letters/digits,
+ * so minor punctuation/spacing/case differences still count as duplicates.
+ *
+ * @param array|string $q A question array (uses ['question']) or raw text
+ * @return string
+ */
+function question_fingerprint($q)
+{
+    $text = is_array($q) ? ($q['question'] ?? '') : (string) $q;
+    $text = function_exists('mb_strtolower') ? mb_strtolower($text) : strtolower($text);
+    $text = preg_replace('/[^a-z0-9\x{0900}-\x{097F}]+/u', '', $text); // keep a-z,0-9 and Devanagari
+    return trim((string) $text);
+}
+
+/**
+ * Remove duplicate questions from a list (by fingerprint), optionally also
+ * excluding any whose fingerprint is in $existingFingerprints.
+ *
+ * @param array $questions            list of question arrays
+ * @param array $existingFingerprints map of fingerprint => true to exclude
+ * @return array [filtered_questions, $duplicates_removed_count]
+ */
+function dedupe_questions(array $questions, array $existingFingerprints = [])
+{
+    $seen = $existingFingerprints;
+    $out  = [];
+    $dupes = 0;
+    foreach ($questions as $q) {
+        if (!is_array($q) || empty($q['question'])) {
+            continue;
+        }
+        $fp = question_fingerprint($q);
+        if ($fp === '' || isset($seen[$fp])) {
+            $dupes++;
+            continue;
+        }
+        $seen[$fp] = true;
+        $out[] = $q;
+    }
+    return [$out, $dupes];
+}
+
+/**
  * Send a Telegram message to all configured chat IDs
  *
  * @param string $message HTML or plain text message

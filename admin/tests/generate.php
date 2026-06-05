@@ -77,6 +77,21 @@ require_once ROOT . '/includes/admin_sidebar.php';
                      placeholder="e.g. Indian History, Quantitative Aptitude">
             </div>
             <div class="mb-3">
+              <label class="form-label fw-semibold">Assign to Subject / Section</label>
+              <input type="text" name="subject" id="subject" class="form-control"
+                     placeholder="e.g. General Awareness" list="subject-suggestions">
+              <datalist id="subject-suggestions">
+                <option value="General Awareness">
+                <option value="Quantitative Aptitude">
+                <option value="Reasoning">
+                <option value="English">
+                <option value="General Science">
+                <option value="Current Affairs">
+                <option value="Computer Knowledge">
+              </datalist>
+              <div class="form-text">Questions get grouped under this subject as a section tab in the test. Leave blank to use the Topic.</div>
+            </div>
+            <div class="mb-3">
               <label class="form-label fw-semibold">Number of Questions</label>
               <select name="num_questions" id="num-questions" class="form-select">
                 <option value="5">5 Questions</option>
@@ -133,7 +148,8 @@ require_once ROOT . '/includes/admin_sidebar.php';
                   <tr>
                     <th style="width:40px">#</th>
                     <th>Question</th>
-                    <th style="width:80px">Correct</th>
+                    <th style="width:120px">Subject</th>
+                    <th style="width:70px">Correct</th>
                     <th style="width:100px">Explanation</th>
                   </tr>
                 </thead>
@@ -190,11 +206,13 @@ var csrfToken = ' . json_encode($csrf) . ';
 document.getElementById("generate-btn").addEventListener("click", function() {
     var examType = document.getElementById("exam-type").value;
     var topic = document.getElementById("topic").value.trim();
+    var subject = document.getElementById("subject").value.trim();
     var numQ = document.getElementById("num-questions").value;
     var difficulty = document.getElementById("difficulty").value;
     var language = document.getElementById("language").value;
     var providerEl = document.getElementById("ai-provider");
     var provider = providerEl ? providerEl.value : "";
+    var targetTest = document.getElementById("target-test").value;
 
     if (!topic) {
         alert("Please enter a topic.");
@@ -212,6 +230,8 @@ document.getElementById("generate-btn").addEventListener("click", function() {
         provider: provider,
         exam_type: examType,
         topic: topic,
+        subject: subject,
+        target_test_id: targetTest || "",
         num_questions: numQ,
         difficulty: difficulty,
         language: language
@@ -234,6 +254,13 @@ document.getElementById("generate-btn").addEventListener("click", function() {
         renderQuestions(res.questions);
         document.getElementById("questions-result").style.display = "block";
         document.getElementById("result-count").textContent = res.questions.length;
+        if (res.duplicates_removed > 0) {
+            showToast(res.duplicates_removed + " duplicate question(s) were removed automatically.", "info", 5000);
+        }
+        if (res.questions.length === 0) {
+            document.getElementById("generate-error").style.display = "block";
+            document.getElementById("generate-error").textContent = "All generated questions were duplicates of existing ones. Try a different topic or more questions.";
+        }
     })
     .catch(function(e) {
         document.getElementById("generate-status").style.display = "none";
@@ -255,6 +282,7 @@ function renderQuestions(questions) {
         tr.innerHTML = "<td class=\"fw-semibold\">" + (i+1) + "</td>"
             + "<td><div class=\"fw-semibold mb-1\">" + escHtml(q.question || "") + "</div>"
             + "<small class=\"text-muted\">" + opts + "</small></td>"
+            + "<td><span class=\"badge bg-light text-dark border\">" + escHtml(q.subject || "General") + "</span></td>"
             + "<td><span class=\"badge bg-success\">" + escHtml(q.correct || "A") + "</span></td>"
             + "<td><small>" + escHtml(q.explanation || "") + "</small></td>";
         tbody.appendChild(tr);
@@ -295,8 +323,12 @@ document.getElementById("save-to-test-btn").addEventListener("click", function()
     .then(function(r) { return r.json(); })
     .then(function(res) {
         if (res.success) {
+            var extra = (res.duplicates_removed > 0)
+                ? " (" + res.duplicates_removed + " duplicate(s) skipped)" : "";
             resultDiv.innerHTML = "<div class=\"alert alert-success mb-0\">Saved! "
-                + (res.test_id ? "<a href=\"/admin/tests/edit.php?id=" + res.test_id + "\">Edit Test</a>" : "")
+                + (res.total_questions ? res.total_questions + " questions in test." : "")
+                + extra
+                + (res.test_id ? " <a href=\"/admin/tests/edit.php?id=" + res.test_id + "\">Edit Test</a>" : "")
                 + "</div>";
         } else {
             resultDiv.innerHTML = "<div class=\"alert alert-danger mb-0\">" + escHtml(res.error || "Error") + "</div>";

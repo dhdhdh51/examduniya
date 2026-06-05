@@ -43,13 +43,30 @@ if ($target_test_id > 0) {
             $existing = $decoded;
         }
     }
-    $merged = array_merge($existing, $new_questions);
+
+    // Build fingerprints of existing questions, then drop any incoming
+    // duplicates so the same question never repeats in one test.
+    $existing_fps = [];
+    foreach ($existing as $eq) {
+        if (!empty($eq['question'])) {
+            $existing_fps[question_fingerprint($eq)] = true;
+        }
+    }
+    list($unique_new, $removed) = dedupe_questions($new_questions, $existing_fps);
+
+    $merged = array_merge($existing, $unique_new);
     $total  = count($merged);
 
     $stmt = $pdo->prepare("UPDATE mock_tests SET questions_json=?, total_questions=? WHERE id=?");
     $stmt->execute([json_encode($merged), $total, $target_test_id]);
 
-    echo json_encode(['success' => true, 'test_id' => $target_test_id, 'total_questions' => $total]);
+    echo json_encode([
+        'success' => true,
+        'test_id' => $target_test_id,
+        'total_questions' => $total,
+        'added' => count($unique_new),
+        'duplicates_removed' => $removed,
+    ]);
     exit;
 }
 
@@ -68,15 +85,23 @@ if ($check->fetchColumn()) {
 }
 
 $created_by = (int)($_SESSION['user_id'] ?? 0);
-$total = count($new_questions);
+
+// De-duplicate within the new batch before creating the test.
+list($unique_new, $removed) = dedupe_questions($new_questions);
+$total = count($unique_new);
 
 $stmt = $pdo->prepare(
     "INSERT INTO mock_tests (title, slug, total_questions, questions_json, is_active, created_by)
      VALUES (?, ?, ?, ?, 0, ?)"
 );
 $stmt->execute([
-    $new_test_name, $slug, $total, json_encode($new_questions), $created_by ?: null
+    $new_test_name, $slug, $total, json_encode(array_values($unique_new)), $created_by ?: null
 ]);
 $new_id = (int)$pdo->lastInsertId();
 
-echo json_encode(['success' => true, 'test_id' => $new_id, 'total_questions' => $total]);
+echo json_encode([
+    'success' => true,
+    'test_id' => $new_id,
+    'total_questions' => $total,
+    'duplicates_removed' => $removed,
+]);
