@@ -1,0 +1,22 @@
+Options -Indexes
+RewriteEngine On
+
+# Clean URL rewrites
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^notification/(.+)$ /pages/exams/detail.php?slug=$1 [QSA,L]
+RewriteRule ^blog/(.+)$ /pages/blog/detail.php?slug=$1 [QSA,L]
+RewriteRule ^test/([0-9]+)$ /pages/tests/attempt.php?test_id=$1 [QSA,L]
+RewriteRule ^sitemap\.xml$ /sitemap.xml.php [QSA,L]
+
+# Block sensitive file types
+<FilesMatch "\.(env|sql|log|sh|bak)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Block direct access to config and includes directories
+<IfModule mod_rewrite.c>
+    RewriteRule ^config/ - [F,L]
+    RewriteRule ^includes/ - [F,L]
+</IfModule>

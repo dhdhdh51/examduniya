@@ -1,0 +1,37 @@
+{
+  "id": "FEAT-004",
+  "type": "feat",
+  "description": "Mock Test system: listing page, purchase/checkout with PayU integration, real exam attempt UI (fullscreen, anti-cheat, auto-save), result page with charts, and TCPDF result download.",
+  "status": "pending",
+  "steps": [
+    "Create pages/tests/listing.php: grid of test cards with pricing, difficulty badge, question count, duration, language tag, FREE vs PAID badge (price=0 = free), 'Start Test' or 'Buy Now' button, subject filter sidebar, exam type filter, difficulty filter, 15 per page pagination",
+    "Create api/payu-initiate.php: require_login(), GET test_id, fetch test from DB, check if user already has access (payments.status=success or price=0), if paid and no access redirect to purchase page, generate unique txnid (uniqid prefix), calculate hash: sha512(key|txnid|amount|productinfo|firstname|email|||||||||||salt) using get_setting() for key/salt, insert pending payment into payments table, output HTML form that auto-submits to PayU gateway URL (test: https://test.payu.in/_payment or live: https://secure.payu.in/_payment based on get_setting('payu_mode'))",
+    "Create pages/tests/purchase.php: order summary card (test title, price, user details), PayU logo image (use text/SVG fallback since no internet), 'Proceed to Payment' button that POSTs to /api/payu-initiate.php, show test features list, secure payment badges",
+    "Create api/payu-success.php: verify hash from PayU POST (reverse hash: sha512(salt|status||||||||||email|firstname|productinfo|amount|txnid|key)), update payment status=success in DB, unlock test for user, redirect to /pages/tests/attempt.php?test_id=X with success message",
+    "Create api/payu-failure.php: log failed attempt, update payment status=failed, redirect to test listing with error message",
+    "Create pages/tests/attempt.php: require_login() + check test access (free or paid), fetch test questions from JSON column, full exam UI layout: top bar (test title, subject tabs, countdown timer turns red <5min), left sidebar (question number palette: green=answered, orange=marked-review, gray=unattempted, dark-red=marked+answered), main content (question text, 4 radio options A/B/C/D with large 48px click targets, question number), bottom nav (Previous, Clear Response, Mark for Review, Save & Next), submit button with confirmation modal. JS: fullscreen on start (warn if exit), right-click disabled, text-select disabled, visibilitychange tab-switch counter (warn after 1, auto-submit after 3), auto-save every 30s to /api/save-answer.php, countdown timer class, palette grid update on answer, auto-submit at 00:00 with 10-sec countdown modal",
+    "Create api/save-answer.php: POST AJAX endpoint, require_login(), save answers JSON to user_attempts table (upsert by user_id+test_id), return JSON success/error",
+    "Create api/submit-test.php: POST, require_login(), finalize user_attempts record (calculate score applying negative marking from test config, set completed_at, calculate rank among all attempts for this test, calculate percentile), return JSON with score/rank/percentile",
+    "Create pages/tests/result.php: require_login(), fetch user_attempt + test, show: score card (your score/total/percentage with large number display), donut chart (Chart.js: correct vs incorrect vs unattempted — green/red/gray), bar chart (section-wise breakdown if multiple subjects), rank badge + percentile, full answer key table (question/your answer/correct answer/explanation), color code rows (green=correct, red=wrong, yellow=not attempted), PDF download button linking to result-pdf.php",
+    "Create pages/tests/result-pdf.php: generate PDF using a simple PHP-based PDF writer (write a minimal FPDF-compatible class or use raw PDF generation — since TCPDF is too large to bundle, write a lightweight PDF generator class in includes/SimplePDF.php that generates a basic result card PDF with score, user name, test name, date using raw PDF syntax), output with Content-Disposition: attachment",
+    "Create includes/SimplePDF.php: lightweight PHP class that generates PDF using raw PDF format (xref table, page objects), sufficient for a 1-2 page result card with text content, tables, and basic styling"
+  ],
+  "acceptance_criteria": [
+    "All test-related PHP files pass lint",
+    "PayU hash generation uses sha512() with correct format: key|txnid|amount|productinfo|firstname|email|||||||||||salt",
+    "PayU success handler verifies reverse hash before marking payment success",
+    "attempt.php has fullscreen API, visibilitychange listener, auto-save interval, countdown timer",
+    "result.php includes Chart.js donut and bar chart initialization data passed as PHP-to-JS JSON",
+    "api/save-answer.php and api/submit-test.php use PDO prepared statements",
+    "Negative marking calculation present in submit-test.php",
+    "payu-initiate.php reads key/salt from get_setting() not hardcoded"
+  ],
+  "verification": [
+    "find /projects/sandbox/examduniya-/pages/tests /projects/sandbox/examduniya-/api -name '*.php' -exec php -l {} \\; 2>&1",
+    "grep 'sha512\\|payu_merchant_key\\|payu_merchant_salt' /projects/sandbox/examduniya-/api/payu-initiate.php",
+    "grep 'visibilitychange\\|fullscreen\\|setInterval' /projects/sandbox/examduniya-/pages/tests/attempt.php",
+    "grep 'Chart\\|donut\\|doughnut' /projects/sandbox/examduniya-/pages/tests/result.php"
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}

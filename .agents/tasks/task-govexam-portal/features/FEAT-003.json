@@ -1,0 +1,36 @@
+{
+  "id": "FEAT-003",
+  "type": "feat",
+  "description": "Public-facing pages: Homepage, Exam Notifications (listing + detail), Blog (listing + detail with comments), sitemap.xml, AJAX live search, and WhatsApp share.",
+  "status": "pending",
+  "steps": [
+    "Create index.php (homepage): include header/navbar/footer, animated hero section (CSS keyframe gradient, heading 'Your Gateway to Government Jobs', search bar spanning full width, category pills: SSC/UPSC/Railway/Banking/Defence), Latest Notifications grid (6 cards from DB, status badges, date, category), Featured Mock Tests section (3 cards with pricing), Recent Blog Posts (3 cards with cover image + excerpt), Stats bar (total notifications, total tests, registered users counts from DB)",
+    "Create pages/exams/listing.php: include header/navbar/footer, sidebar filters (category checkboxes, status radio, date range), main area with search bar + sort dropdown (newest/oldest/vacancies), 15-per-page paginated grid of notification cards (title, conducting body, last date, vacancies, status badge, 'View Details' button), skeleton loading state, no-results empty state, breadcrumb",
+    "Create pages/exams/detail.php: fetch notification by slug from GET param, full detail layout — hero with title/status badge/conducting body, info cards grid (notification date, last date apply, exam date, vacancies, age limit, fee table for General/OBC/SC-ST), full HTML content area, qualification section, official links + PDF download button, 'Apply Online' button to official_url, WhatsApp share button (wa.me link with pre-filled text), related notifications (same category, 4 cards), breadcrumb, meta tags for SEO",
+    "Create pages/blog/listing.php: grid layout (3 cols desktop, 2 tablet, 1 mobile), category filter pills, search bar, cover image thumbnails, author + date + views, 15 per page pagination, skeleton loading",
+    "Create pages/blog/detail.php: article layout — cover image full-width hero, title/author/date/views/tags, full HTML content with styled headings, comments section (show approved comments, comment form for logged-in users with CSRF, pending message for new comments), social share buttons (WhatsApp + copy link), related posts sidebar (same category 3), meta title/description for SEO, increment views counter on each page load",
+    "Create api/search.php: AJAX endpoint, GET param q (min 3 chars), search notifications (title, short_desc) and blogs (title, content) using LIKE with PDO, return JSON array [{type:'notification'|'blog', title, url, excerpt}], max 10 results total",
+    "Create sitemap.xml.php: output XML sitemap with Content-Type application/xml, list all published notifications and blogs with loc/lastmod/changefreq/priority, add static pages (home, exams, tests, blog)",
+    "Create pages/user/dashboard.php: require_login(), show user profile card, tabs: My Tests (purchased tests with score/rank), My Profile (edit name/avatar upload), My Results (past attempts with score chart), change password form",
+    "Add AJAX live search JS in main.js: on keyup in #global-search (debounce 300ms, min 3 chars), fetch /api/search.php?q=, render dropdown with results below search bar, click navigates to result URL, close on outside click",
+    "Create pages/user/profile.php: edit profile form (name, avatar upload with MIME check), change password form, email display (read-only), account created date"
+  ],
+  "acceptance_criteria": [
+    "index.php, pages/exams/listing.php, pages/exams/detail.php, pages/blog/listing.php, pages/blog/detail.php all pass PHP lint",
+    "detail.php pages use slugs from URL and fetch from DB with PDO prepared statements",
+    "All user output through htmlspecialchars()",
+    "Pagination works: paginate() function used with 15 per page",
+    "sitemap.xml.php outputs valid XML with Content-Type header",
+    "api/search.php returns JSON and uses PDO prepared statements with LIKE",
+    "WhatsApp share button on notification detail page",
+    "Comment form on blog detail has CSRF token and stores as status=pending"
+  ],
+  "verification": [
+    "find /projects/sandbox/examduniya- -name '*.php' -not -path '*/.git/*' -exec php -l {} \\; 2>&1 | grep -v 'No syntax errors' | head -20",
+    "grep -r 'htmlspecialchars' /projects/sandbox/examduniya-/pages/ | wc -l",
+    "grep -r 'prepare\\|execute' /projects/sandbox/examduniya-/pages/ | wc -l",
+    "ls /projects/sandbox/examduniya-/pages/exams/ && ls /projects/sandbox/examduniya-/pages/blog/"
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}

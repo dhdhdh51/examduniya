@@ -1,0 +1,27 @@
+{
+  "project_type": "PHP 8.2 + MySQL web application — Government Exam Notification + Mock Test + Blog portal for cPanel shared hosting",
+  "language": "PHP 8.2, MySQL, Vanilla JS, HTML, CSS",
+  "build_system": "None — manual PHP includes, no Composer, no Node.js build step. Deployed directly to cPanel public_html. Use `mise use php@8.2` in the project root to activate PHP 8.2.",
+  "test_framework": "PHP syntax check via: php -l filename.php. Full functional check by running: find . -name '*.php' -exec php -l {} \\;",
+  "build_command": "find /projects/sandbox/examduniya- -name '*.php' -not -path '*/.git/*' -exec php -l {} \\;",
+  "test_command": "find /projects/sandbox/examduniya- -name '*.php' -not -path '*/.git/*' -exec php -l {} \\;",
+  "verification_instructions": "1. Run PHP lint on all files: find . -name '*.php' -exec php -l {} \\;\n2. Check file structure matches spec\n3. Check .htaccess is valid\n4. Check that no hardcoded API keys exist (grep for actual API keys in non-config files)",
+  "snapshot_or_generated_files": null,
+  "setup_instructions": "1. cd /projects/sandbox/examduniya-\n2. mise use php@8.2 (switches to PHP 8.2)\n3. All files placed directly in repo root (maps to public_html on cPanel)\n4. DB credentials only in config/db.php\n5. PHPMailer source files bundled in includes/PHPMailer/",
+  "environment_constraints": "INTEGRATIONS_ONLY network — cannot download packages. All CDN resources (Bootstrap 5.3, Chart.js, Google Fonts Inter, Font Awesome) referenced as CDN links in HTML. PHPMailer must be written/bundled as source files in the repo. No Docker, no Node.js, no Composer. TCPDF for PDF generation must also be bundled as source. PHP 8.2 via mise.",
+  "contribution_requirements": "cPanel shared hosting compatibility: no shell_exec, no proc_open in production code. All external calls via cURL. Clean URLs via .htaccess mod_rewrite.",
+  "key_patterns": "All API keys/tokens from settings MySQL table via get_setting() helper. PDO prepared statements everywhere. CSRF tokens on all forms. htmlspecialchars() on all output. Admin checks role===admin on every admin page. Functions in includes/functions.php. Config only in config/db.php.",
+  "relevant_files": [
+    "index.php",
+    "config/db.php",
+    "includes/functions.php",
+    "includes/header.php",
+    "includes/footer.php",
+    "includes/navbar.php",
+    "assets/css/style.css",
+    "assets/js/main.js",
+    "admin/settings.php",
+    "admin/index.php"
+  ],
+  "directory_structure": "Root = public_html equivalent. config/ = DB only. includes/ = shared PHP includes + PHPMailer source. pages/ = public pages. admin/ = admin panel. auth/ = login/signup/oauth. api/ = AJAX endpoints. assets/ = CSS/JS. uploads/ = user-uploaded files."
+}

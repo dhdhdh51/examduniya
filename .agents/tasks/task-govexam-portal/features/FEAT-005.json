@@ -1,0 +1,50 @@
+{
+  "id": "FEAT-005",
+  "type": "feat",
+  "description": "Admin panel: dark sidebar dashboard, full CRUD for notifications/tests/blogs/users, Gemini AI question generator UI, and the complete Settings panel with all test-connection AJAX endpoints.",
+  "status": "pending",
+  "steps": [
+    "Create admin/index.php (Dashboard): require_admin(), include admin_header + admin_sidebar, stats cards (total notifications, total tests, total users, total payments/revenue), recent activity table (last 10 notifications, last 10 test attempts), chart: notifications by category (bar), revenue last 30 days (line), quick-action buttons (Add Notification, Add Test, Add Blog)",
+    "Create admin/notifications/list.php: DataTable-style table with columns (title, category, status badge, vacancies, last_date, telegram_sent badge, actions edit/delete), bulk actions dropdown, Add New button, search/filter by category+status, pagination 20 per page",
+    "Create admin/notifications/add.php: full form — title (auto-generates slug), category dropdown, conducting_body, dates (notification_date, last_date_apply, exam_date), vacancies, age_limit, qualification textarea, fee table (general/obc/sc-st), official_url, PDF upload (MIME check, rename to uniqid), full HTML content editor (use a simple textarea with TinyMCE-style but since no CDN — use a basic contenteditable div or just a textarea), status dropdown, 'Save & Send Telegram' checkbox that calls send_telegram() if checked after save",
+    "Create admin/notifications/edit.php: same form pre-populated from DB, update query with PDO, same Telegram send option",
+    "Create admin/tests/list.php: table of mock tests with title/exam_type/questions count/price/status/difficulty, edit/delete/preview actions, Add New button",
+    "Create admin/tests/add.php: form for test metadata (title, exam_type, subject, duration_minutes, price, negative_marking dropdown, difficulty, language, status), manual question entry section (add question rows with JS: question text + 4 options + correct answer selector + explanation), save questions as JSON to mock_tests.questions column",
+    "Create admin/tests/generate.php: Gemini AI question generator UI — form with: exam type dropdown (SSC/UPSC/Railway etc), topic text input, number of questions (5/10/15/20), difficulty (easy/medium/hard), language (English/Hindi), 'Generate with AI' button, result area showing generated questions in editable table, 'Save to Test' button. AJAX POST to admin/ajax/generate-questions.php which calls call_gemini() with the MCQ prompt, parses JSON response, returns questions array",
+    "Create admin/ajax/generate-questions.php: require_admin(), build Gemini prompt from POST params, call call_gemini(), parse the JSON array from response text (strip markdown code fences if present), return questions JSON to frontend",
+    "Create admin/tests/edit.php: pre-populated test edit form, same question editor as add.php",
+    "Create admin/blogs/list.php: table with title/category/status/views/created_at, edit/delete actions, Add New button, pending comments count badge",
+    "Create admin/blogs/add.php: form with title (auto-slug), category, tags, cover image upload (jpg/png MIME check), meta_title/meta_desc SEO fields, full HTML content textarea (large), status dropdown",
+    "Create admin/blogs/edit.php: pre-populated edit form for blogs",
+    "Create admin/users/list.php: table with name/email/role badge/plan badge/plan_expiry/created_at, actions (edit role, delete), search by email/name, filter by role",
+    "Create admin/users/edit.php: edit user role (admin/premium/free), edit plan (monthly/yearly/free), set plan_expiry date, view user's test attempts",
+    "Create admin/comments/list.php: pending comments queue (blog title, commenter, comment text, date), Approve/Reject buttons, AJAX approve/reject endpoints",
+    "Create admin/settings.php: tabbed interface using Bootstrap nav-tabs with 7 tabs: [General] [Google OAuth] [Gemini AI] [Telegram] [SMTP Email] [PayU Payment] [Maintenance]. Each tab has: form fields for that settings group, 'Save Settings' button (AJAX POST to admin/ajax/save-settings.php), Test button, status badge. Detailed tab contents: General tab has site_name, site_url, site_logo upload, google_analytics_id. Google tab: google_client_id, google_client_secret, callback URL display. Gemini tab: gemini_api_key (password field), model dropdown (flash/pro/legacy). Telegram tab: bot_token (password+toggle), chat_ids textarea, enable toggle, 'How to get Chat ID' modal button. SMTP tab: host, port, encryption dropdown, username, password toggle, from_name, preset buttons [Gmail][Outlook][cPanel]. PayU tab: merchant_key, merchant_salt, mode toggle test/live, enable toggle, orange warning if live mode. Maintenance tab: on/off toggle with warning.",
+    "Create admin/ajax/save-settings.php: require_admin(), CSRF verify, loop through POST array of setting_key=>value pairs, UPDATE settings table, return JSON success",
+    "Create admin/ajax/test-gemini.php: require_admin(), call call_gemini('Reply with only: CONNECTED'), measure response time, return JSON {success, model, response_time_ms, error}",
+    "Create admin/ajax/test-telegram.php: require_admin(), call send_telegram('Test message from GovExam Admin Panel — Telegram is connected!'), also call getMe API, return JSON {success, bot_username, sent_count, error}",
+    "Create admin/ajax/test-smtp.php: require_admin(), POST test_email param, call send_email(test_email, 'SMTP Test — GovExam Portal', 'Your SMTP is configured correctly. Sent at '.date('Y-m-d H:i:s')), return JSON {success, sent_to, error}",
+    "Create admin/ajax/test-payu.php: require_admin(), get key/salt from settings, validate format (key should be ~6-8 chars, salt should be ~35-40 chars), check mode, return JSON {success, mode, key_length, salt_length, warning_if_live}",
+    "Create admin/ajax/test-google.php: require_admin(), get client_id from settings, call https://oauth2.googleapis.com/tokeninfo?client_id={id} via cURL (will fail with INTEGRATIONS_ONLY but write the correct code anyway), return JSON {success, error}",
+    "Create admin/ajax/approve-comment.php: require_admin(), POST comment_id, update comments.status=approved, return JSON",
+    "Create includes/admin_middleware.php: single file to include at top of every admin page: session_start if not started, check $_SESSION['role']==='admin' else http_response_code(403) and include 403.php and exit"
+  ],
+  "acceptance_criteria": [
+    "All admin PHP files pass PHP lint",
+    "Every admin/*.php and admin/**/*.php includes require_admin() or admin_middleware check",
+    "admin/settings.php has all 7 tabs: General, Google OAuth, Gemini AI, Telegram, SMTP Email, PayU Payment, Maintenance",
+    "All 5 test-connection AJAX endpoints exist: test-gemini.php, test-telegram.php, test-smtp.php, test-payu.php, test-google.php",
+    "admin/ajax/save-settings.php uses PDO prepared statements to UPDATE settings table",
+    "admin/tests/generate.php calls Gemini API via call_gemini() with correct MCQ prompt",
+    "All AJAX endpoints return JSON",
+    "admin/notifications/add.php has Telegram send option and PDF upload with MIME check"
+  ],
+  "verification": [
+    "find /projects/sandbox/examduniya-/admin -name '*.php' -exec php -l {} \\; 2>&1 | grep -v 'No syntax errors' | head -20",
+    "ls /projects/sandbox/examduniya-/admin/ajax/",
+    "grep -r 'require_admin\\|admin_middleware' /projects/sandbox/examduniya-/admin/ | wc -l",
+    "grep -l 'nav-tabs\\|tab-content' /projects/sandbox/examduniya-/admin/settings.php"
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}

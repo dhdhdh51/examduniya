@@ -1,0 +1,7 @@
+{
+  "task_id": "task-govexam-portal",
+  "task_description": "Build a complete Government Exam Notification + Mock Test + Blog website using PHP 8.2, MySQL, and vanilla JS. Compatible with cPanel shared hosting (no Docker, no Node.js, no Composer). Beautiful UI/UX with Bootstrap 5 + custom CSS, Inter font via CDN. All API keys in MySQL settings table. Full admin panel with test-connection buttons, PayU payment, Gemini AI question generation, Telegram notifications, SMTP email via bundled PHPMailer.",
+  "status": "in_progress",
+  "feature_order": ["FEAT-001", "FEAT-002", "FEAT-003", "FEAT-004", "FEAT-005"],
+  "blocked_reason": null
+}

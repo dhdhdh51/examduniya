@@ -1,0 +1,37 @@
+{
+  "id": "FEAT-001",
+  "type": "feat",
+  "description": "Foundation: database schema, config, core includes, PHPMailer source, .htaccess, and the complete design system (style.css + main.js). This is the backbone everything else depends on.",
+  "status": "in_progress",
+  "steps": [
+    "Create .htaccess at repo root with: mod_rewrite clean URLs, deny access to config/, includes/, .env/.sql/.log files, deny PHP execution in uploads/",
+    "Create config/db.php with PDO connection (DB_HOST/DB_NAME/DB_USER/DB_PASS constants), define ROOT constant as __DIR__ parent, set PDO error mode to EXCEPTION",
+    "Create database/schema.sql with ALL CREATE TABLE statements: users, notifications, mock_tests, user_attempts, payments, blogs, comments, password_resets, settings. Include all INSERT statements for default settings rows (gemini, telegram, smtp, payu, site, google groups).",
+    "Create includes/functions.php with: get_setting($key) with static cache, call_gemini($prompt) using cURL, send_telegram($message) multi-chat-id, send_email($to,$subject,$html) using PHPMailer, csrf_token(), csrf_verify(), slug($str), paginate($total,$per_page,$page), format_date($date), excerpt($text,$len), rate_limit_check($ip), require_admin() middleware, require_login() middleware, upload_file($file,$dir,$allowed), maintenance_mode_check()",
+    "Create includes/PHPMailer/ directory with full PHPMailer 6.x source: PHPMailer.php, SMTP.php, Exception.php — write these as complete functional PHP class files matching PHPMailer 6.9 API used in functions.php (isSMTP, SMTPAuth, Host, Username, Password, SMTPSecure, Port, setFrom, addAddress, isHTML, Subject, Body, send)",
+    "Create assets/css/style.css: complete design system — CSS variables (--primary #2563EB, --success #059669, --warning #D97706, --danger #DC2626), body/font Inter, card styles (border-radius 12px, hover lift translateY -4px), admin sidebar dark (#1e293b), status badges (upcoming=blue, active=green, result=purple, admitcard=orange), glassmorphism auth card, animated hero gradient, skeleton loading, toast notifications (top-right), exam attempt UI (question palette grid colors), responsive breakpoints, scrollbar styles",
+    "Create assets/js/main.js: csrf token helper, toast notification system (showToast(msg,type)), AJAX save settings helper, live search (debounce 300ms, min 3 chars), skeleton loader toggle, confirm modal helper, countdown timer class, fullscreen API wrapper, tab switch detection, question palette renderer, chart initialization helpers",
+    "Create includes/header.php: DOCTYPE, meta charset/viewport, dynamic <title> from page var, Inter font CDN link, Bootstrap 5.3 CDN CSS, Font Awesome 6 CDN, custom style.css link, Google Analytics conditional inject (get_setting('google_analytics_id')), CSRF meta tag, maintenance mode check call",
+    "Create includes/footer.php: Bootstrap 5.3 CDN JS bundle, Chart.js CDN, custom main.js script, closing body/html tags, optional footer content",
+    "Create includes/navbar.php: sticky top navbar with site logo/name from settings, main nav links (Home, Exams, Mock Tests, Blog), search icon, notification bell, login/register buttons or user avatar dropdown if logged in, mobile hamburger",
+    "Create includes/admin_header.php: admin-specific header with dark theme, admin nav",
+    "Create includes/admin_sidebar.php: dark sidebar (#1e293b) with collapsible menu sections — Dashboard, Notifications, Mock Tests, Blogs, Users, Settings. Active state detection by current URL. Collapse toggle JS."
+  ],
+  "acceptance_criteria": [
+    "PHP lint passes on all created files: find /projects/sandbox/examduniya- -name '*.php' -exec php -l {} \\; shows no errors",
+    "database/schema.sql contains all 9 tables and all default settings INSERT rows",
+    "includes/PHPMailer/ contains PHPMailer.php, SMTP.php, Exception.php as valid PHP class files",
+    "includes/functions.php contains all required functions: get_setting, call_gemini, send_telegram, send_email, csrf_token, csrf_verify, slug, paginate, require_admin, require_login, upload_file, maintenance_mode_check",
+    ".htaccess exists with RewriteEngine On and deny rules for config/ and includes/",
+    "assets/css/style.css contains all CSS variables, card hover styles, admin sidebar dark styles, glassmorphism styles",
+    "assets/js/main.js contains showToast function, CountdownTimer class, fullscreen wrapper"
+  ],
+  "verification": [
+    "find /projects/sandbox/examduniya- -name '*.php' -not -path '*/.git/*' -exec php -l {} \\; 2>&1 | grep -v 'No syntax errors' || echo 'All PHP files pass lint'",
+    "grep -l 'get_setting\\|call_gemini\\|send_telegram\\|send_email\\|csrf_token\\|require_admin' /projects/sandbox/examduniya-/includes/functions.php",
+    "ls /projects/sandbox/examduniya-/includes/PHPMailer/",
+    "grep 'CREATE TABLE' /projects/sandbox/examduniya-/database/schema.sql | wc -l"
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}

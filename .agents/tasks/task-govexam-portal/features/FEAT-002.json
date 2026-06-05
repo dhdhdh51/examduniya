@@ -1,0 +1,35 @@
+{
+  "id": "FEAT-002",
+  "type": "feat",
+  "description": "Authentication system: email/password signup with verification, Google OAuth 2.0 (credentials from settings table), session management, forgot password, CSRF protection, login/signup glassmorphism UI.",
+  "status": "pending",
+  "steps": [
+    "Create auth/login.php: glassmorphism card on animated gradient background, floating-label email+password fields, 'Sign in with Google' button (white, Google icon SVG inline), remember-me checkbox, link to signup/forgot-password. Server side: check rate limit by IP, verify password_hash, set session (user_id, name, email, role, avatar), CSRF token on form, redirect to intended URL or dashboard",
+    "Create auth/signup.php: same glassmorphism design, fields: name/email/password/confirm-password with floating labels, real-time JS validation (password strength meter, email format), CSRF token, server side: validate inputs, check email uniqueness, insert user with password_hash(PASSWORD_BCRYPT), generate email verification token (random_bytes 32), insert into password_resets with type='verify', call send_email() with verification link, show success message",
+    "Create auth/verify-email.php: check token from GET param, match in password_resets table, mark email_verified=1 in users, redirect to login with success message",
+    "Create auth/forgot-password.php: GET shows email form, POST generates reset token (random_bytes 32), stores in password_resets table (expires 1 hour), sends email via send_email() with reset link, show confirmation",
+    "Create auth/reset-password.php: validate token from GET, show new-password form, POST: verify token not expired/used, update password_hash, mark token used, redirect to login",
+    "Create auth/google-callback.php: read google_client_id and google_client_secret from get_setting(). OAuth flow: exchange code for token via cURL POST to https://oauth2.googleapis.com/token, fetch user info from https://www.googleapis.com/oauth2/v1/userinfo, upsert user in users table (match by google_id or email), set session, redirect to dashboard",
+    "Create auth/logout.php: destroy session, redirect to home",
+    "Create auth/google-redirect.php: build Google OAuth URL using get_setting('google_client_id'), redirect_uri as site_url/auth/google-callback.php, scopes: email profile, state CSRF token",
+    "Update includes/functions.php require_login() to redirect to auth/login.php, require_admin() to check role=admin else 403 page",
+    "Create 403.php and 404.php error pages with consistent design",
+    "Add rate limiting for login: table login_attempts (ip, attempts, last_attempt), block after 5 failures per hour"
+  ],
+  "acceptance_criteria": [
+    "auth/login.php, auth/signup.php, auth/google-callback.php, auth/logout.php, auth/forgot-password.php, auth/reset-password.php, auth/verify-email.php, auth/google-redirect.php all exist and pass PHP lint",
+    "login.php reads Google OAuth credentials from get_setting() not hardcoded",
+    "All POST forms have CSRF token verification",
+    "Password stored with password_hash(PASSWORD_BCRYPT) never plaintext",
+    "Rate limiting: login attempts tracked in DB",
+    "google-callback.php uses cURL to call Google APIs (not curl_exec hardcoded URLs)"
+  ],
+  "verification": [
+    "find /projects/sandbox/examduniya-/auth -name '*.php' -exec php -l {} \\; 2>&1",
+    "grep -r 'csrf_verify\\|CSRF' /projects/sandbox/examduniya-/auth/ | wc -l",
+    "grep -r 'password_hash\\|PASSWORD_BCRYPT' /projects/sandbox/examduniya-/auth/signup.php",
+    "grep 'get_setting.*google' /projects/sandbox/examduniya-/auth/google-callback.php"
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}
