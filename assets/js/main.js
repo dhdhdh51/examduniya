@@ -175,44 +175,60 @@ function debounce(fn, delay) {
    ============================================================ */
 
 function initLiveSearch() {
+  // Modal search (navbar)
   var input = document.getElementById('globalSearch');
-  if (!input) return;
+  if (input) {
+    var resultsContainer = document.getElementById('searchResults');
+    if (resultsContainer) {
+      attachSearch(input, resultsContainer, false);
+    }
+  }
 
-  var resultsContainer = document.getElementById('searchResults');
-  if (!resultsContainer) return;
+  // Homepage hero search
+  var heroInput = document.getElementById('global-search');
+  if (heroInput) {
+    var heroDropdown = document.getElementById('search-results-dropdown');
+    if (heroDropdown) {
+      attachSearch(heroInput, heroDropdown, true);
+    }
+  }
+}
+
+function attachSearch(input, resultsContainer, isDropdown) {
+  var typeIcons = {
+    notification: 'fa-solid fa-bell text-primary',
+    blog: 'fa-solid fa-newspaper text-info'
+  };
 
   var doSearch = debounce(function (query) {
     if (query.length < 3) {
       resultsContainer.innerHTML = '';
+      if (isDropdown) resultsContainer.style.display = 'none';
       return;
     }
 
-    resultsContainer.innerHTML = '<div class="text-muted small p-2"><i class="fa-solid fa-spinner fa-spin me-2"></i>Searching...</div>';
+    if (isDropdown) resultsContainer.style.display = 'block';
+    resultsContainer.innerHTML = '<div class="text-muted small p-3"><i class="fa-solid fa-spinner fa-spin me-2"></i>Searching...</div>';
 
-    ajaxPost('/api/search.php', { q: query, csrf_token: getCsrfToken() }, function (err, data) {
-      if (err || !data) {
-        resultsContainer.innerHTML = '<div class="text-muted small p-2">No results found.</div>';
-        return;
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', '/api/search.php?q=' + encodeURIComponent(query), true);
+    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+    xhr.onload = function () {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        try {
+          var data = JSON.parse(xhr.responseText);
+          renderSearchResults(data, resultsContainer, query, isDropdown, typeIcons);
+        } catch (e) {
+          resultsContainer.innerHTML = '<div class="text-muted small p-3 text-center">Search error.</div>';
+        }
+      } else {
+        resultsContainer.innerHTML = '<div class="text-muted small p-3 text-center">Search error.</div>';
       }
-
-      if (!data.results || data.results.length === 0) {
-        resultsContainer.innerHTML = '<div class="text-muted small p-3 text-center">No results found for "<strong>' + escapeHtml(query) + '</strong>"</div>';
-        return;
-      }
-
-      var html = '<div class="list-group list-group-flush">';
-      data.results.forEach(function (item) {
-        html += '<a href="' + escapeHtml(item.url) + '" class="list-group-item list-group-item-action">' +
-                '<div class="d-flex justify-content-between align-items-center">' +
-                '<span class="fw-semibold small">' + escapeHtml(item.title) + '</span>' +
-                '<span class="badge badge-' + escapeHtml(item.type || 'primary') + ' ms-2">' + escapeHtml(item.category || '') + '</span>' +
-                '</div>' +
-                (item.excerpt ? '<div class="text-muted" style="font-size:0.8rem;margin-top:2px;">' + escapeHtml(item.excerpt) + '</div>' : '') +
-                '</a>';
-      });
-      html += '</div>';
-      resultsContainer.innerHTML = html;
-    });
+    };
+    xhr.onerror = function () {
+      resultsContainer.innerHTML = '<div class="text-muted small p-3 text-center">Network error.</div>';
+    };
+    xhr.send();
   }, 300);
 
   input.addEventListener('input', function () {
@@ -222,9 +238,49 @@ function initLiveSearch() {
   input.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') {
       resultsContainer.innerHTML = '';
-      input.value = '';
+      if (isDropdown) resultsContainer.style.display = 'none';
     }
   });
+
+  // Hide on outside click for dropdowns
+  if (isDropdown) {
+    document.addEventListener('click', function (e) {
+      if (!input.contains(e.target) && !resultsContainer.contains(e.target)) {
+        resultsContainer.style.display = 'none';
+      }
+    });
+    input.addEventListener('focus', function () {
+      if (resultsContainer.innerHTML.trim() !== '' && this.value.trim().length >= 3) {
+        resultsContainer.style.display = 'block';
+      }
+    });
+  }
+}
+
+function renderSearchResults(data, container, query, isDropdown, typeIcons) {
+  if (!data || !Array.isArray(data) || data.length === 0) {
+    container.innerHTML = '<div class="text-muted small p-3 text-center">No results found for "<strong>' + escapeHtml(query) + '</strong>"</div>';
+    if (isDropdown) container.style.display = 'block';
+    return;
+  }
+
+  var html = '<div class="list-group list-group-flush">';
+  data.forEach(function (item) {
+    var icon = typeIcons[item.type] || 'fa-solid fa-link text-secondary';
+    html += '<a href="' + escapeHtml(item.url) + '" class="list-group-item list-group-item-action py-2">' +
+            '<div class="d-flex align-items-center gap-2">' +
+            '<i class="' + icon + '"></i>' +
+            '<div class="flex-grow-1">' +
+            '<div class="fw-semibold small">' + escapeHtml(item.title) + '</div>' +
+            (item.excerpt ? '<div class="text-muted" style="font-size:0.75rem;">' + escapeHtml(item.excerpt) + '</div>' : '') +
+            '</div>' +
+            '<span class="badge bg-primary-light text-primary" style="font-size:0.65rem;">' + escapeHtml(item.badge || item.type || '') + '</span>' +
+            '</div>' +
+            '</a>';
+  });
+  html += '</div>';
+  container.innerHTML = html;
+  if (isDropdown) container.style.display = 'block';
 }
 
 /* ============================================================

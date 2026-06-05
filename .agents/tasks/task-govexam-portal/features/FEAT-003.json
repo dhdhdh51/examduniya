@@ -2,7 +2,7 @@
   "id": "FEAT-003",
   "type": "feat",
   "description": "Public-facing pages: Homepage, Exam Notifications (listing + detail), Blog (listing + detail with comments), sitemap.xml, AJAX live search, and WhatsApp share.",
-  "status": "pending",
+  "status": "in_progress",
   "steps": [
     "Create index.php (homepage): include header/navbar/footer, animated hero section (CSS keyframe gradient, heading 'Your Gateway to Government Jobs', search bar spanning full width, category pills: SSC/UPSC/Railway/Banking/Defence), Latest Notifications grid (6 cards from DB, status badges, date, category), Featured Mock Tests section (3 cards with pricing), Recent Blog Posts (3 cards with cover image + excerpt), Stats bar (total notifications, total tests, registered users counts from DB)",
     "Create pages/exams/listing.php: include header/navbar/footer, sidebar filters (category checkboxes, status radio, date range), main area with search bar + sort dropdown (newest/oldest/vacancies), 15-per-page paginated grid of notification cards (title, conducting body, last date, vacancies, status badge, 'View Details' button), skeleton loading state, no-results empty state, breadcrumb",
