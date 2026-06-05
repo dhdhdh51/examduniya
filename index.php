@@ -68,29 +68,37 @@ $status_labels = [
 
 <!-- Hero Section -->
 <section class="hero text-white">
-    <div class="container">
+    <!-- Floating gradient blobs -->
+    <span class="hero-blob hero-blob-1"></span>
+    <span class="hero-blob hero-blob-2"></span>
+    <span class="hero-blob hero-blob-3"></span>
+
+    <div class="container hero-content">
         <div class="row justify-content-center text-center">
-            <div class="col-lg-8">
-                <h1 class="fw-bold mb-3">Your Gateway to Government Jobs</h1>
-                <p class="lead mb-4">Latest SSC, UPSC, Railway, Banking notifications &amp; free mock tests — all in one place.</p>
+            <div class="col-lg-9">
+                <span class="hero-eyebrow mb-3">
+                    <i class="fa-solid fa-bolt"></i> India's all-in-one exam companion
+                </span>
+                <h1 class="hero-title mb-3">Your Gateway to <span class="hero-gradient-text">Government Jobs</span></h1>
+                <p class="hero-subtitle mb-4">Latest SSC, UPSC, Railway &amp; Banking notifications, plus free &amp; premium mock tests — all in one modern platform.</p>
 
                 <!-- Category Pills -->
-                <div class="category-pills mb-3">
+                <div class="category-pills mb-4">
                     <?php foreach ($categories as $cat): ?>
                         <a href="/pages/exams/listing.php?category=<?= urlencode($cat) ?>"
-                           class="btn btn-sm btn-light fw-semibold rounded-pill px-3 shadow-sm">
-                            <i class="fa-solid <?= htmlspecialchars($cat_icons[$cat] ?? 'fa-star') ?> me-1 text-primary"></i>
+                           class="hero-pill">
+                            <i class="fa-solid <?= htmlspecialchars($cat_icons[$cat] ?? 'fa-star') ?>"></i>
                             <?= htmlspecialchars($cat === 'StatePSC' ? 'State PSC' : $cat) ?>
                         </a>
                     <?php endforeach; ?>
                 </div>
 
                 <!-- CTA Buttons -->
-                <div class="d-flex flex-wrap justify-content-center gap-2 mt-3">
-                    <a href="/pages/exams/" class="btn btn-light btn-lg fw-semibold shadow-sm">
+                <div class="d-flex flex-wrap justify-content-center gap-3 mt-4">
+                    <a href="/pages/exams/" class="btn btn-light btn-lg fw-semibold rounded-pill px-4 hero-cta">
                         <i class="fa-solid fa-bell me-2 text-primary"></i>View Notifications
                     </a>
-                    <a href="/pages/tests/" class="btn btn-warning btn-lg fw-semibold shadow-sm">
+                    <a href="/pages/tests/" class="btn btn-lg fw-semibold rounded-pill px-4 btn-gradient-accent">
                         <i class="fa-solid fa-file-pen me-2"></i>Start Mock Test
                     </a>
                 </div>
@@ -100,50 +108,42 @@ $status_labels = [
 </section>
 
 <!-- Stats Bar -->
-<section class="stats-bar bg-white border-bottom py-4">
+<section class="stats-bar py-4 py-md-5">
     <div class="container">
-        <div class="row g-3 text-center">
-            <div class="col-6 col-md-3">
-                <div class="d-flex align-items-center justify-content-center gap-3">
-                    <div class="stat-icon bg-primary-light rounded-3">
-                        <i class="fa-solid fa-bell text-primary"></i>
-                    </div>
-                    <div class="text-start">
-                        <div class="fw-bold fs-4 text-primary"><?= number_format((int)$stats['total_notifications']) ?></div>
-                        <div class="small text-muted">Notifications</div>
+        <div class="row g-3">
+            <div class="col-6 col-lg-3">
+                <div class="stat-card">
+                    <div class="stat-card-icon stat-grad-blue"><i class="fa-solid fa-bell"></i></div>
+                    <div>
+                        <div class="stat-card-value"><?= number_format((int)$stats['total_notifications']) ?>+</div>
+                        <div class="stat-card-label">Notifications</div>
                     </div>
                 </div>
             </div>
-            <div class="col-6 col-md-3">
-                <div class="d-flex align-items-center justify-content-center gap-3">
-                    <div class="stat-icon bg-success-light rounded-3">
-                        <i class="fa-solid fa-file-pen text-success"></i>
-                    </div>
-                    <div class="text-start">
-                        <div class="fw-bold fs-4 text-success"><?= number_format((int)$stats['total_tests']) ?></div>
-                        <div class="small text-muted">Mock Tests</div>
+            <div class="col-6 col-lg-3">
+                <div class="stat-card">
+                    <div class="stat-card-icon stat-grad-green"><i class="fa-solid fa-file-pen"></i></div>
+                    <div>
+                        <div class="stat-card-value"><?= number_format((int)$stats['total_tests']) ?>+</div>
+                        <div class="stat-card-label">Mock Tests</div>
                     </div>
                 </div>
             </div>
-            <div class="col-6 col-md-3">
-                <div class="d-flex align-items-center justify-content-center gap-3">
-                    <div class="stat-icon rounded-3" style="background:#ede9fe;">
-                        <i class="fa-solid fa-users" style="color:#7c3aed;"></i>
-                    </div>
-                    <div class="text-start">
-                        <div class="fw-bold fs-4" style="color:#7c3aed;"><?= number_format((int)$stats['total_users']) ?></div>
-                        <div class="small text-muted">Registered Users</div>
+            <div class="col-6 col-lg-3">
+                <div class="stat-card">
+                    <div class="stat-card-icon stat-grad-purple"><i class="fa-solid fa-users"></i></div>
+                    <div>
+                        <div class="stat-card-value"><?= number_format((int)$stats['total_users']) ?>+</div>
+                        <div class="stat-card-label">Registered Users</div>
                     </div>
                 </div>
             </div>
-            <div class="col-6 col-md-3">
-                <div class="d-flex align-items-center justify-content-center gap-3">
-                    <div class="stat-icon bg-danger-light rounded-3">
-                        <i class="fa-solid fa-trophy text-danger"></i>
-                    </div>
-                    <div class="text-start">
-                        <div class="fw-bold fs-4 text-danger"><?= number_format((int)$stats['total_purchases']) ?></div>
-                        <div class="small text-muted">Test Purchases</div>
+            <div class="col-6 col-lg-3">
+                <div class="stat-card">
+                    <div class="stat-card-icon stat-grad-orange"><i class="fa-solid fa-trophy"></i></div>
+                    <div>
+                        <div class="stat-card-value"><?= number_format((int)$stats['total_purchases']) ?>+</div>
+                        <div class="stat-card-label">Test Purchases</div>
                     </div>
                 </div>
             </div>
