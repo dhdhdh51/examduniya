@@ -2,7 +2,7 @@
   "id": "FEAT-001",
   "type": "feat",
   "description": "Foundation: database schema, config, core includes, PHPMailer source, .htaccess, and the complete design system (style.css + main.js). This is the backbone everything else depends on.",
-  "status": "in_progress",
+  "status": "completed",
   "steps": [
     "Create .htaccess at repo root with: mod_rewrite clean URLs, deny access to config/, includes/, .env/.sql/.log files, deny PHP execution in uploads/",
     "Create config/db.php with PDO connection (DB_HOST/DB_NAME/DB_USER/DB_PASS constants), define ROOT constant as __DIR__ parent, set PDO error mode to EXCEPTION",
@@ -33,5 +33,5 @@
     "grep 'CREATE TABLE' /projects/sandbox/examduniya-/database/schema.sql | wc -l"
   ],
   "blocked_reason": null,
-  "findings": ""
+  "findings": "All 29 files created and committed. All 13 PHP files pass PHP 8.2 lint with zero errors. PHPMailer implemented as full SMTP client using stream_socket_client with STARTTLS/SMTPS support, AUTH LOGIN, dot-stuffing in DATA phase. functions.php contains all 18 required functions. database/schema.sql has 10 CREATE TABLE statements. PHP 8.2 binary: /opt/toolchains/.local/share/mise/installs/php/8.2.31/bin/php."
 }
