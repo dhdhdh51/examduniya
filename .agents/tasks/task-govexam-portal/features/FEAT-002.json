@@ -2,7 +2,7 @@
   "id": "FEAT-002",
   "type": "feat",
   "description": "Authentication system: email/password signup with verification, Google OAuth 2.0 (credentials from settings table), session management, forgot password, CSRF protection, login/signup glassmorphism UI.",
-  "status": "in_progress",
+  "status": "completed",
   "steps": [
     "Create auth/login.php: glassmorphism card on animated gradient background, floating-label email+password fields, 'Sign in with Google' button (white, Google icon SVG inline), remember-me checkbox, link to signup/forgot-password. Server side: check rate limit by IP, verify password_hash, set session (user_id, name, email, role, avatar), CSRF token on form, redirect to intended URL or dashboard",
     "Create auth/signup.php: same glassmorphism design, fields: name/email/password/confirm-password with floating labels, real-time JS validation (password strength meter, email format), CSRF token, server side: validate inputs, check email uniqueness, insert user with password_hash(PASSWORD_BCRYPT), generate email verification token (random_bytes 32), insert into password_resets with type='verify', call send_email() with verification link, show success message",
@@ -31,5 +31,5 @@
     "grep 'get_setting.*google' /projects/sandbox/examduniya-/auth/google-callback.php"
   ],
   "blocked_reason": null,
-  "findings": ""
+  "findings": "All 10 files created and pass PHP 8.2 lint. Email verification tokens stored in password_resets table (no 'type' column needed — verified by token+expiry). Google OAuth credentials read via get_setting(). All POST forms have CSRF. password_hash(PASSWORD_BCRYPT) used in signup and reset. Rate limiting uses existing login_attempts table from FEAT-001 schema. admin_middleware.php uses require_admin() pattern from functions.php for consistency."
 }
