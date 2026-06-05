@@ -2,7 +2,7 @@
   "id": "FEAT-005",
   "type": "feat",
   "description": "Admin panel: dark sidebar dashboard, full CRUD for notifications/tests/blogs/users, Gemini AI question generator UI, and the complete Settings panel with all test-connection AJAX endpoints.",
-  "status": "pending",
+  "status": "completed",
   "steps": [
     "Create admin/index.php (Dashboard): require_admin(), include admin_header + admin_sidebar, stats cards (total notifications, total tests, total users, total payments/revenue), recent activity table (last 10 notifications, last 10 test attempts), chart: notifications by category (bar), revenue last 30 days (line), quick-action buttons (Add Notification, Add Test, Add Blog)",
     "Create admin/notifications/list.php: DataTable-style table with columns (title, category, status badge, vacancies, last_date, telegram_sent badge, actions edit/delete), bulk actions dropdown, Add New button, search/filter by category+status, pagination 20 per page",
@@ -46,5 +46,5 @@
     "grep -l 'nav-tabs\\|tab-content' /projects/sandbox/examduniya-/admin/settings.php"
   ],
   "blocked_reason": null,
-  "findings": ""
+  "findings": "Completed the remaining Settings panel work (the rest of the admin CRUD/dashboard/generator pages were already in place). Created admin/settings.php with 7 vertical pill tabs (General, Google OAuth, Gemini AI, Telegram, SMTP Email, PayU Payment, Maintenance). Each form posts via AJAX to admin/ajax/save-settings.php which whitelists keys per group, forces toggle keys (telegram_enabled/smtp_enabled/payu_enabled/maintenance_mode) to 1/0, validates enums (gemini_model/payu_mode/smtp_encryption), normalises numeric fields, and supports optional logo upload. Built all 5 test-connection endpoints: test-gemini.php (prompt + response time), test-telegram.php (getMe + sendMessage to all chat IDs), test-smtp.php (PHPMailer test email to a supplied address), test-payu.php (key/salt length + mode validation + sample sha512 hash), test-google.php (client-id format + tokeninfo probe with soft-success when outbound network is blocked). Each test persists a {group}_last_test JSON value used to render the status badge. IMPORTANT: aligned all setting keys with the existing functions.php + schema.sql implementation (smtp_username/smtp_password/smtp_from_email, gemini default gemini-2.0-flash) rather than the literal spec key names, so the panel actually drives the existing helpers. Added missing default settings rows to database/schema.sql (site_logo, telegram_enabled, smtp_enabled, payu_enabled) — notably telegram_enabled is already read by admin/notifications/add.php so it was previously a latent no-op. Fixed a stale endpoint path in assets/js/main.js saveSettings(). All admin PHP files (28) are guarded by admin_middleware/require_admin and pass php -l on PHP 8.2. Note: full runtime verification beyond php -l was not possible because MySQL is not provisioned in the sandbox and the environment is INTEGRATIONS_ONLY (no outbound network to Gemini/Telegram/Google/SMTP)."
 }

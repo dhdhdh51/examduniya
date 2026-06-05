@@ -553,7 +553,7 @@ function saveSettings(group) {
   var fd = new FormData(form);
   fd.append('group', group);
 
-  ajaxPostForm('/admin/api/save_settings.php', fd, function (err, data) {
+  ajaxPostForm('/admin/ajax/save-settings.php', fd, function (err, data) {
     if (btn) {
       btn.disabled = false;
       btn.innerHTML = '<i class="fa-solid fa-floppy-disk me-2"></i>Save ' + group.charAt(0).toUpperCase() + group.slice(1);

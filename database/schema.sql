@@ -153,7 +153,8 @@ INSERT INTO settings (setting_key, setting_value, setting_group) VALUES
 -- Default settings: Telegram
 INSERT INTO settings (setting_key, setting_value, setting_group) VALUES
 ('telegram_bot_token', '', 'telegram'),
-('telegram_chat_ids', '', 'telegram');
+('telegram_chat_ids', '', 'telegram'),
+('telegram_enabled', '1', 'telegram');
 
 -- Default settings: SMTP / Email
 INSERT INTO settings (setting_key, setting_value, setting_group) VALUES
@@ -163,13 +164,15 @@ INSERT INTO settings (setting_key, setting_value, setting_group) VALUES
 ('smtp_password', '', 'smtp'),
 ('smtp_from_email', '', 'smtp'),
 ('smtp_from_name', 'GovExam Portal', 'smtp'),
-('smtp_encryption', 'tls', 'smtp');
+('smtp_encryption', 'tls', 'smtp'),
+('smtp_enabled', '1', 'smtp');
 
 -- Default settings: PayU
 INSERT INTO settings (setting_key, setting_value, setting_group) VALUES
 ('payu_merchant_key', '', 'payu'),
 ('payu_merchant_salt', '', 'payu'),
 ('payu_mode', 'test', 'payu'),
+('payu_enabled', '1', 'payu'),
 ('plan_monthly_price', '99', 'payu'),
 ('plan_yearly_price', '799', 'payu');
 
@@ -178,6 +181,7 @@ INSERT INTO settings (setting_key, setting_value, setting_group) VALUES
 ('site_name', 'GovExam Portal', 'site'),
 ('site_description', 'Government Exam Notifications, Mock Tests & Study Material', 'site'),
 ('site_url', 'https://example.com', 'site'),
+('site_logo', '', 'site'),
 ('google_analytics_id', '', 'site'),
 ('maintenance_mode', '0', 'site'),
 ('per_page', '12', 'site');
