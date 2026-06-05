@@ -21,7 +21,7 @@ if (!csrf_verify()) {
 }
 
 $api_key = get_setting('gemini_api_key');
-$model   = get_setting('gemini_model') ?: 'gemini-2.0-flash';
+$model   = get_setting('gemini_model') ?: 'gemini-3.5-flash';
 
 if (empty($api_key)) {
     echo json_encode(['success' => false, 'error' => 'Gemini API key is not configured.']);

@@ -27,7 +27,7 @@ $s = [
     'google_redirect_uri'  => get_setting('google_redirect_uri'),
     // gemini
     'gemini_api_key'       => get_setting('gemini_api_key'),
-    'gemini_model'         => get_setting('gemini_model') ?: 'gemini-2.0-flash',
+    'gemini_model'         => get_setting('gemini_model') ?: 'gemini-3.5-flash',
     // telegram
     'telegram_bot_token'   => get_setting('telegram_bot_token'),
     'telegram_chat_ids'    => get_setting('telegram_chat_ids'),
@@ -238,19 +238,21 @@ $csrf = csrf_token();
                 <div class="mb-3">
                   <label class="form-label">Model</label>
                   <input type="text" class="form-control" name="gemini_model" list="geminiModels"
-                         value="<?= sanitize($s['gemini_model']) ?>" placeholder="gemini-2.5-flash" autocomplete="off">
+                         value="<?= sanitize($s['gemini_model']) ?>" placeholder="gemini-3.5-flash" autocomplete="off">
                   <datalist id="geminiModels">
-                    <option value="gemini-2.5-pro">Gemini 2.5 Pro (most capable)</option>
-                    <option value="gemini-2.5-flash">Gemini 2.5 Flash (fast, latest)</option>
-                    <option value="gemini-2.0-flash">Gemini 2.0 Flash (fast, recommended)</option>
-                    <option value="gemini-1.5-pro">Gemini 1.5 Pro</option>
+                    <option value="gemini-3.5-flash">Gemini 3.5 Flash (latest, recommended)</option>
+                    <option value="gemini-3.5-pro">Gemini 3.5 Pro (most capable)</option>
+                    <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
+                    <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
+                    <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
                     <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
+                    <option value="gemini-1.5-pro">Gemini 1.5 Pro</option>
                     <option value="gemini-pro">Gemini Pro (legacy)</option>
                   </datalist>
                   <div class="form-text">
-                    Type any model name your API key supports, or pick a suggestion. The latest available family
-                    is <strong>Gemini 2.5</strong> (there is no "3.5" yet). Use <strong>Test Gemini API</strong>
-                    below to confirm the model works.
+                    Pick a suggestion or type any model name your API key supports. The current recommended model
+                    is <strong>gemini-3.5-flash</strong>. Use <strong>Test Gemini API</strong> below to confirm
+                    the chosen model works with your key.
                   </div>
                 </div>
 

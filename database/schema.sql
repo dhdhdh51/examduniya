@@ -163,7 +163,7 @@ CREATE TABLE IF NOT EXISTS settings (
 -- Default settings: Gemini AI
 INSERT INTO settings (setting_key, setting_value, setting_group) VALUES
 ('gemini_api_key', '', 'gemini'),
-('gemini_model', 'gemini-2.0-flash', 'gemini');
+('gemini_model', 'gemini-3.5-flash', 'gemini');
 
 -- Default settings: Telegram
 INSERT INTO settings (setting_key, setting_value, setting_group) VALUES
