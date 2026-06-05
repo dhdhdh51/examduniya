@@ -457,6 +457,7 @@ img {
   flex: 1;
   min-width: 0;
   max-width: 100%;
+  transition: margin-left 0.3s ease;
 }
 
 /* Ensure admin container stays readable on ultra-wide */
@@ -477,6 +478,36 @@ img {
   justify-content: center;
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow-md);
+}
+
+/* Desktop reopen button — hidden by default, shown only when collapsed */
+.admin-sidebar-open-desktop {
+  position: fixed;
+  top: 14px;
+  left: 14px;
+  z-index: 1045;
+  width: 44px;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-md);
+}
+@media (min-width: 992px) {
+  /* Keep desktop reopen hidden unless the sidebar is collapsed */
+  .admin-sidebar-open-desktop { display: none !important; }
+  body.admin-sidebar-collapsed .admin-sidebar-open-desktop { display: inline-flex !important; }
+
+  /* Collapsed: slide the sidebar away and reclaim the space */
+  body.admin-sidebar-collapsed .admin-sidebar {
+    transform: translateX(-100%);
+  }
+  body.admin-sidebar-collapsed .admin-main {
+    margin-left: 0;
+  }
+  body.admin-sidebar-collapsed .admin-content {
+    margin-left: 0;
+  }
 }
 
 /* Sidebar nav links */

@@ -9,16 +9,25 @@ function admin_nav_active($path, $current)
     return (strpos($current, $path) !== false) ? 'active' : '';
 }
 ?>
+<!-- Mobile open button -->
 <button id="sidebarToggle" class="admin-sidebar-toggle btn btn-dark d-lg-none" type="button" aria-label="Toggle menu">
+  <i class="fa-solid fa-bars"></i>
+</button>
+<!-- Desktop reopen button (shown only when sidebar is collapsed) -->
+<button id="sidebarOpenDesktop" class="admin-sidebar-open-desktop btn btn-dark d-none d-lg-flex" type="button" aria-label="Open menu" title="Open menu">
   <i class="fa-solid fa-bars"></i>
 </button>
 <nav id="adminSidebar" class="admin-sidebar d-flex flex-column">
   <!-- Brand -->
-  <div class="admin-sidebar-brand px-3 py-3 border-bottom border-secondary">
+  <div class="admin-sidebar-brand px-3 py-3 border-bottom border-secondary d-flex align-items-center justify-content-between">
     <a href="/admin/" class="text-white text-decoration-none d-flex align-items-center gap-2">
       <i class="fa-solid fa-graduation-cap text-primary fs-5"></i>
       <span class="fw-bold"><?= htmlspecialchars($site_name) ?></span>
     </a>
+    <!-- Desktop collapse button -->
+    <button id="sidebarCollapseDesktop" class="btn btn-sm btn-outline-light border-0 d-none d-lg-inline-flex p-1" type="button" aria-label="Collapse menu" title="Hide menu">
+      <i class="fa-solid fa-angles-left"></i>
+    </button>
   </div>
 
   <!-- Admin profile -->

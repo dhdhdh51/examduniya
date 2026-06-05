@@ -647,26 +647,52 @@ function submitExam(testId) {
 }
 
 /* ============================================================
-   Admin Sidebar Toggle (mobile)
+   Admin Sidebar Toggle (mobile + desktop)
    ============================================================ */
 
 function initAdminSidebar() {
-  var toggle  = document.getElementById('sidebarToggle');
-  var sidebar = document.getElementById('adminSidebar');
-  var overlay = document.getElementById('sidebarOverlay');
+  var toggle        = document.getElementById('sidebarToggle');         // mobile open
+  var sidebar       = document.getElementById('adminSidebar');
+  var overlay       = document.getElementById('sidebarOverlay');
+  var collapseBtn   = document.getElementById('sidebarCollapseDesktop'); // desktop hide
+  var openDesktop   = document.getElementById('sidebarOpenDesktop');     // desktop reopen
 
-  if (!toggle || !sidebar) return;
+  if (!sidebar) return;
 
-  toggle.addEventListener('click', function () {
-    sidebar.classList.toggle('open');
-    if (overlay) overlay.classList.toggle('active');
-  });
-
+  // ---- Mobile: slide in/out with overlay ----
+  if (toggle) {
+    toggle.addEventListener('click', function () {
+      sidebar.classList.toggle('open');
+      if (overlay) overlay.classList.toggle('active');
+    });
+  }
   if (overlay) {
     overlay.addEventListener('click', function () {
       sidebar.classList.remove('open');
       overlay.classList.remove('active');
     });
+  }
+
+  // ---- Desktop: collapse/expand (hides sidebar, content goes full width) ----
+  var STORAGE_KEY = 'adminSidebarCollapsed';
+
+  function setCollapsed(collapsed) {
+    document.body.classList.toggle('admin-sidebar-collapsed', collapsed);
+    try { localStorage.setItem(STORAGE_KEY, collapsed ? '1' : '0'); } catch (e) {}
+  }
+
+  // Restore saved state on load
+  var saved = '0';
+  try { saved = localStorage.getItem(STORAGE_KEY) || '0'; } catch (e) {}
+  if (saved === '1') {
+    document.body.classList.add('admin-sidebar-collapsed');
+  }
+
+  if (collapseBtn) {
+    collapseBtn.addEventListener('click', function () { setCollapsed(true); });
+  }
+  if (openDesktop) {
+    openDesktop.addEventListener('click', function () { setCollapsed(false); });
   }
 }
 
