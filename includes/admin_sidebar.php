@@ -164,7 +164,15 @@ function admin_nav_active($path, $current)
         </a>
       </li>
 
-      <!-- Settings -->
+      <!-- Exam Categories -->
+      <li class="nav-item mt-1">
+        <a class="nav-link <?= admin_nav_active('/admin/categories', $current_uri) ?>"
+           href="/admin/categories/">
+          <i class="fa-solid fa-tags me-2"></i>Exam Categories
+        </a>
+      </li>
+
+      <!-- AI Providers -->
       <li class="nav-item mt-1">
         <a class="nav-link <?= admin_nav_active('/admin/ai', $current_uri) ?>"
            href="/admin/ai/">

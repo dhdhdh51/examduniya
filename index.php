@@ -49,15 +49,30 @@ try {
 require_once ROOT . '/includes/header.php';
 require_once ROOT . '/includes/navbar.php';
 
-$categories = ['SSC', 'UPSC', 'Railway', 'Banking', 'Defence', 'StatePSC'];
+// Homepage category shortcuts — pull from managed list (dynamic), cap at 8
 $cat_icons  = [
-    'SSC'     => 'fa-briefcase',
-    'UPSC'    => 'fa-landmark',
-    'Railway' => 'fa-train',
-    'Banking' => 'fa-building-columns',
-    'Defence' => 'fa-shield-halved',
-    'StatePSC'=> 'fa-flag',
+    'SSC'      => 'fa-briefcase',
+    'UPSC'     => 'fa-landmark',
+    'Railway'  => 'fa-train',
+    'Banking'  => 'fa-building-columns',
+    'Defence'  => 'fa-shield-halved',
+    'StatePSC' => 'fa-flag',
+    'State PSC'=> 'fa-flag',
+    'UP Police'        => 'fa-user-shield',
+    'Bihar Police'     => 'fa-user-shield',
+    'MP Police'        => 'fa-user-shield',
+    'Rajasthan Police' => 'fa-user-shield',
+    'UPSSSC'   => 'fa-file-signature',
+    'Teaching (CTET/TET)' => 'fa-chalkboard-user',
+    'Nursing'  => 'fa-user-nurse',
+    'Other'    => 'fa-ellipsis',
 ];
+$all_cats   = get_exam_categories();
+// Don't show a generic "Other" tile on the homepage grid.
+$categories = array_values(array_filter($all_cats, function ($c) {
+    return strcasecmp($c, 'Other') !== 0;
+}));
+$categories = array_slice($categories, 0, 8);
 $status_labels = [
     'upcoming'  => 'Upcoming',
     'active'    => 'Active',
