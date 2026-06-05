@@ -51,10 +51,12 @@ $site_url  = get_setting('site_url') ?: '#';
         </a>
         <hr class="border-secondary mt-4">
         <ul class="list-inline small text-secondary mb-0">
-          <li class="list-inline-item"><a href="/pages/privacy.php" class="text-secondary text-decoration-none">Privacy</a></li>
-          <li class="list-inline-item"><a href="/pages/terms.php" class="text-secondary text-decoration-none">Terms</a></li>
           <li class="list-inline-item"><a href="/pages/about.php" class="text-secondary text-decoration-none">About</a></li>
           <li class="list-inline-item"><a href="/pages/contact.php" class="text-secondary text-decoration-none">Contact</a></li>
+          <li class="list-inline-item"><a href="/pages/privacy.php" class="text-secondary text-decoration-none">Privacy</a></li>
+          <li class="list-inline-item"><a href="/pages/terms.php" class="text-secondary text-decoration-none">Terms</a></li>
+          <li class="list-inline-item"><a href="/pages/refund.php" class="text-secondary text-decoration-none">Refund Policy</a></li>
+          <li class="list-inline-item"><a href="/pages/shipping.php" class="text-secondary text-decoration-none">Shipping &amp; Delivery</a></li>
         </ul>
       </div>
     </div>

@@ -1689,3 +1689,238 @@ img {
   .stat-card-value { font-size: 1.2rem; }
   .stat-card-label { font-size: 0.72rem; }
 }
+
+
+/* ============================================================
+   MODERN STUDENT DASHBOARD
+   ============================================================ */
+
+/* Hero / welcome banner */
+.dash-hero {
+  position: relative;
+  overflow: hidden;
+  border: none;
+  border-radius: var(--radius-lg);
+  background:
+    radial-gradient(600px 300px at 90% -10%, rgba(255,255,255,0.18), transparent 60%),
+    linear-gradient(135deg, #2563EB 0%, #4f46e5 50%, #7c3aed 100%);
+  color: #fff;
+}
+.dash-hero::after {
+  content: '';
+  position: absolute;
+  right: -40px;
+  bottom: -60px;
+  width: 220px;
+  height: 220px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.dash-hero .dash-avatar {
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  border: 3px solid rgba(255,255,255,0.7);
+  object-fit: cover;
+  background: #fff;
+}
+.dash-avatar-fallback {
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid rgba(255,255,255,0.6);
+}
+
+/* Summary stat cards */
+.dash-stat {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.1rem 1.25rem;
+  box-shadow: 0 8px 24px -14px rgba(15, 23, 42, 0.3);
+  transition: var(--transition);
+  height: 100%;
+}
+.dash-stat:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 30px -16px rgba(15, 23, 42, 0.4);
+}
+.dash-stat-icon {
+  width: 50px;
+  height: 50px;
+  min-width: 50px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  color: #fff;
+}
+.dash-stat-value {
+  font-size: 1.6rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--dark);
+}
+.dash-stat-label {
+  font-size: 0.78rem;
+  color: var(--gray);
+  margin-top: 3px;
+}
+
+/* Modern pill tabs */
+.dash-tabs {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 50px;
+  padding: 0.35rem;
+  box-shadow: var(--shadow);
+}
+.dash-tabs .dash-tab {
+  border: none;
+  background: transparent;
+  color: var(--gray);
+  font-weight: 600;
+  font-size: 0.875rem;
+  padding: 0.5rem 1.1rem;
+  border-radius: 50px;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+.dash-tabs .dash-tab:hover {
+  color: var(--primary);
+  background: var(--primary-light);
+}
+.dash-tabs .dash-tab.active {
+  color: #fff;
+  background: linear-gradient(135deg, var(--primary), var(--purple));
+  box-shadow: 0 6px 16px -6px rgba(37, 99, 235, 0.6);
+}
+
+/* Purchased test card */
+.dash-test-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: #fff;
+  transition: var(--transition);
+  height: 100%;
+}
+.dash-test-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--primary-light);
+}
+
+@media (max-width: 576px) {
+  .dash-stat { padding: 0.85rem 0.9rem; gap: 0.6rem; }
+  .dash-stat-icon { width: 42px; height: 42px; min-width: 42px; font-size: 1.05rem; border-radius: 12px; }
+  .dash-stat-value { font-size: 1.3rem; }
+  .dash-hero .dash-avatar, .dash-avatar-fallback { width: 64px; height: 64px; }
+  .dash-tabs { width: 100%; justify-content: center; }
+}
+
+/* ============================================================
+   MOBILE NAVBAR / HAMBURGER POLISH
+   ============================================================ */
+
+/* Nicer hamburger button */
+.navbar-toggler {
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.35rem 0.55rem;
+  transition: var(--transition);
+}
+.navbar-toggler:focus {
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+  outline: none;
+}
+.navbar-toggler:hover {
+  background: var(--primary-light);
+  border-color: var(--primary);
+}
+
+/* On mobile, the collapsed menu becomes a clean dropdown panel */
+@media (max-width: 991.98px) {
+  #navbarMain {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+    padding: 0.75rem;
+    margin-top: 0.6rem;
+  }
+  #navbarMain .navbar-nav .nav-link {
+    padding: 0.65rem 0.85rem !important;
+    border-radius: var(--radius-sm);
+  }
+  #navbarMain .navbar-nav .nav-item + .nav-item {
+    border-top: 1px solid var(--gray-100);
+  }
+  #navbarMain .dropdown-menu {
+    border: none;
+    box-shadow: none;
+    padding-left: 1rem;
+    background: var(--light);
+    border-radius: var(--radius-sm);
+  }
+  /* Right-side actions: full width, spaced out */
+  #navbarMain .d-flex.align-items-center {
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--gray-100);
+    flex-wrap: wrap;
+    gap: 0.5rem !important;
+  }
+  #navbarMain .d-flex.align-items-center > .btn,
+  #navbarMain .d-flex.align-items-center > .dropdown {
+    flex: 1 1 auto;
+  }
+  #navbarMain .d-flex.align-items-center .dropdown > .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* ============================================================
+   LEGAL / POLICY PAGES
+   ============================================================ */
+
+.legal-page {
+  max-width: 880px;
+}
+.legal-page h1 {
+  font-size: 1.9rem;
+  font-weight: 800;
+}
+.legal-page h2 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-top: 1.75rem;
+  margin-bottom: 0.6rem;
+  color: var(--dark);
+}
+.legal-page p,
+.legal-page li {
+  color: #475569;
+  line-height: 1.75;
+}
+.legal-updated {
+  display: inline-block;
+  background: var(--gray-100);
+  color: var(--gray);
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.3rem 0.85rem;
+  border-radius: 50px;
+}

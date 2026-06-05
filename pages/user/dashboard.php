@@ -105,6 +105,20 @@ try {
 $page_title = 'My Dashboard';
 $active_tab = $_GET['tab'] ?? 'tests';
 
+// Summary stats for the dashboard cards
+$tests_count   = count($purchased_tests);
+$attempts_count = count($results);
+$best_pct = 0;
+$avg_pct  = 0;
+if (!empty($results)) {
+    $pcts = [];
+    foreach ($results as $r) {
+        $pcts[] = $r['total_marks'] > 0 ? ($r['score'] / $r['total_marks']) * 100 : 0;
+    }
+    $best_pct = round(max($pcts));
+    $avg_pct  = round(array_sum($pcts) / count($pcts));
+}
+
 require_once ROOT . '/includes/header.php';
 require_once ROOT . '/includes/navbar.php';
 ?>
@@ -119,32 +133,78 @@ require_once ROOT . '/includes/navbar.php';
         </ol>
     </nav>
 
-    <!-- Welcome Card -->
-    <div class="card no-lift mb-4" style="background:linear-gradient(135deg,#2563eb,#7c3aed);border:none;">
+    <!-- Welcome Banner -->
+    <div class="card dash-hero no-lift mb-4">
         <div class="card-body p-4">
-            <div class="d-flex align-items-center gap-4 flex-wrap">
+            <div class="d-flex align-items-center gap-3 gap-md-4 flex-wrap position-relative" style="z-index:1;">
                 <div class="flex-shrink-0">
                     <?php if ($user['avatar']): ?>
-                        <img src="/uploads/avatars/<?= htmlspecialchars($user['avatar']) ?>"
-                             class="rounded-circle border border-3 border-white" width="80" height="80" alt="avatar">
+                        <img src="/uploads/avatars/<?= htmlspecialchars($user['avatar']) ?>" class="dash-avatar" alt="avatar">
                     <?php else: ?>
-                        <div class="rounded-circle bg-white d-flex align-items-center justify-content-center"
-                             style="width:80px;height:80px;">
-                            <i class="fa-solid fa-user fa-2x text-primary"></i>
+                        <div class="dash-avatar-fallback">
+                            <i class="fa-solid fa-user fa-2x text-white"></i>
                         </div>
                     <?php endif; ?>
                 </div>
                 <div class="text-white">
-                    <h4 class="text-white fw-bold mb-1">Welcome, <?= htmlspecialchars($user['name'] ?: 'User') ?>!</h4>
-                    <p class="mb-1 opacity-90"><i class="fa-solid fa-envelope me-1"></i><?= htmlspecialchars($user['email']) ?></p>
+                    <h4 class="text-white fw-bold mb-1">Welcome back, <?= htmlspecialchars($user['name'] ?: 'User') ?>! 👋</h4>
+                    <p class="mb-1 opacity-90 small"><i class="fa-solid fa-envelope me-1"></i><?= htmlspecialchars($user['email']) ?></p>
                     <p class="mb-0 opacity-75 small">
                         <i class="fa-solid fa-calendar me-1"></i>Member since <?= htmlspecialchars(format_date($user['created_at'])) ?>
                     </p>
                 </div>
                 <div class="ms-auto">
                     <span class="badge bg-white text-primary fw-bold px-3 py-2 rounded-pill">
-                        <?= htmlspecialchars(ucfirst($user['plan'] ?: $user['role'])) ?>
+                        <i class="fa-solid fa-crown me-1"></i><?= htmlspecialchars(ucfirst($user['plan'] ?: $user['role'])) ?>
                     </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Stat Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-lg-3">
+            <div class="dash-stat">
+                <div class="dash-stat-icon" style="background:linear-gradient(135deg,#2563EB,#0ea5e9);">
+                    <i class="fa-solid fa-file-pen"></i>
+                </div>
+                <div>
+                    <div class="dash-stat-value"><?= $tests_count ?></div>
+                    <div class="dash-stat-label">My Tests</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="dash-stat">
+                <div class="dash-stat-icon" style="background:linear-gradient(135deg,#7c3aed,#a78bfa);">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                </div>
+                <div>
+                    <div class="dash-stat-value"><?= $attempts_count ?></div>
+                    <div class="dash-stat-label">Attempts</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="dash-stat">
+                <div class="dash-stat-icon" style="background:linear-gradient(135deg,#059669,#34d399);">
+                    <i class="fa-solid fa-trophy"></i>
+                </div>
+                <div>
+                    <div class="dash-stat-value"><?= $best_pct ?>%</div>
+                    <div class="dash-stat-label">Best Score</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="dash-stat">
+                <div class="dash-stat-icon" style="background:linear-gradient(135deg,#d97706,#fbbf24);">
+                    <i class="fa-solid fa-chart-line"></i>
+                </div>
+                <div>
+                    <div class="dash-stat-value"><?= $avg_pct ?>%</div>
+                    <div class="dash-stat-label">Avg Score</div>
                 </div>
             </div>
         </div>
@@ -163,26 +223,17 @@ require_once ROOT . '/includes/navbar.php';
     <?php endif; ?>
 
     <!-- Tabs -->
-    <ul class="nav nav-tabs mb-4" role="tablist">
-        <li class="nav-item" role="presentation">
-            <a class="nav-link<?= $active_tab === 'tests' ? ' active fw-semibold' : '' ?>"
-               href="?tab=tests">
-                <i class="fa-solid fa-file-pen me-1"></i>My Tests
-            </a>
-        </li>
-        <li class="nav-item" role="presentation">
-            <a class="nav-link<?= $active_tab === 'results' ? ' active fw-semibold' : '' ?>"
-               href="?tab=results">
-                <i class="fa-solid fa-chart-column me-1"></i>My Results
-            </a>
-        </li>
-        <li class="nav-item" role="presentation">
-            <a class="nav-link<?= $active_tab === 'profile' ? ' active fw-semibold' : '' ?>"
-               href="?tab=profile">
-                <i class="fa-solid fa-user me-1"></i>My Profile
-            </a>
-        </li>
-    </ul>
+    <div class="dash-tabs mb-4">
+        <a class="dash-tab<?= $active_tab === 'tests' ? ' active' : '' ?>" href="?tab=tests">
+            <i class="fa-solid fa-file-pen me-1"></i>My Tests
+        </a>
+        <a class="dash-tab<?= $active_tab === 'results' ? ' active' : '' ?>" href="?tab=results">
+            <i class="fa-solid fa-chart-column me-1"></i>My Results
+        </a>
+        <a class="dash-tab<?= $active_tab === 'profile' ? ' active' : '' ?>" href="?tab=profile">
+            <i class="fa-solid fa-user me-1"></i>My Profile
+        </a>
+    </div>
 
     <!-- Tab Content -->
     <?php if ($active_tab === 'tests'): ?>
@@ -198,16 +249,21 @@ require_once ROOT . '/includes/navbar.php';
             <div class="row g-3">
                 <?php foreach ($purchased_tests as $pt): ?>
                     <div class="col-md-6 col-lg-4">
-                        <div class="card h-100">
-                            <div class="card-body d-flex flex-column">
-                                <h6 class="fw-bold mb-2"><?= htmlspecialchars($pt['title']) ?></h6>
+                        <div class="dash-test-card">
+                            <div class="card-body d-flex flex-column p-3">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <span class="dash-stat-icon" style="width:40px;height:40px;min-width:40px;font-size:1rem;background:linear-gradient(135deg,#2563EB,#0ea5e9);">
+                                        <i class="fa-solid fa-file-lines"></i>
+                                    </span>
+                                    <h6 class="fw-bold mb-0"><?= htmlspecialchars($pt['title']) ?></h6>
+                                </div>
                                 <div class="text-muted small mb-3">
-                                    <div><i class="fa-solid fa-circle-question me-1"></i><?= (int)$pt['total_questions'] ?> Questions</div>
-                                    <div><i class="fa-solid fa-clock me-1"></i><?= (int)$pt['duration_minutes'] ?> min</div>
-                                    <div><i class="fa-solid fa-calendar me-1"></i>Purchased: <?= htmlspecialchars(format_date($pt['purchase_date'])) ?></div>
+                                    <div class="mb-1"><i class="fa-solid fa-circle-question me-1 text-primary"></i><?= (int)$pt['total_questions'] ?> Questions</div>
+                                    <div class="mb-1"><i class="fa-solid fa-clock me-1 text-primary"></i><?= (int)$pt['duration_minutes'] ?> min</div>
+                                    <div><i class="fa-solid fa-calendar me-1 text-primary"></i>Purchased: <?= htmlspecialchars(format_date($pt['purchase_date'])) ?></div>
                                 </div>
                                 <a href="/pages/tests/attempt.php?test_id=<?= (int)$pt['id'] ?>"
-                                   class="btn btn-primary btn-sm w-100 mt-auto">
+                                   class="btn btn-primary btn-sm w-100 mt-auto rounded-pill">
                                     Start Test <i class="fa-solid fa-arrow-right ms-1"></i>
                                 </a>
                             </div>
