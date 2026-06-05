@@ -77,8 +77,8 @@ require_once ROOT . '/includes/admin_sidebar.php';
         <div class="col-md-3">
           <select name="category" class="form-select form-select-sm">
             <option value="">All Categories</option>
-            <?php foreach (['SSC','UPSC','Railway','Banking','StatePSC','Defence','Other'] as $cat): ?>
-            <option value="<?= $cat ?>" <?= $filter_cat===$cat?'selected':'' ?>><?= $cat ?></option>
+            <?php foreach (get_exam_categories() as $cat): ?>
+            <option value="<?= htmlspecialchars($cat) ?>" <?= $filter_cat===$cat?'selected':'' ?>><?= htmlspecialchars($cat) ?></option>
             <?php endforeach; ?>
           </select>
         </div>
