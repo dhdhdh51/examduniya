@@ -456,6 +456,12 @@ img {
   padding: 1.5rem;
   flex: 1;
   min-width: 0;
+  max-width: 100%;
+}
+
+/* Ensure admin container stays readable on ultra-wide */
+.admin-content .container-fluid {
+  max-width: 1400px;
 }
 
 /* Mobile sidebar toggle (hamburger) */
@@ -1249,19 +1255,109 @@ img {
 }
 
 /* ============================================================
-   Responsive Utilities
+   Homepage Improvements
+   ============================================================ */
+
+/* Stat icons in the bar — proper sizing */
+.stats-bar .stat-icon {
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  border-radius: var(--radius-sm);
+}
+
+/* Category pills in hero — wrap nicely on mobile */
+.hero .category-pills {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+/* Homepage cards should fill height uniformly */
+.exam-card.h-100 .card-body,
+.pricing-card.h-100,
+.blog-card.h-100 {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Prevent admin cards from lifting (confusing hover on tables/forms) */
+.admin-content .card:hover {
+  transform: none;
+  box-shadow: var(--shadow);
+}
+
+/* ============================================================
+   Desktop Improvements
+   ============================================================ */
+
+/* Container max-width for readability on very wide screens */
+@media (min-width: 1400px) {
+  .container {
+    max-width: 1320px;
+  }
+}
+
+/* Navbar spacing on desktop */
+@media (min-width: 992px) {
+  .navbar .nav-link {
+    padding: 0.5rem 1rem !important;
+  }
+}
+
+/* ============================================================
+   Mobile / Responsive Fixes
    ============================================================ */
 
 @media (max-width: 576px) {
-  .section-title { font-size: 1.4rem; }
-  .hero { padding: 2.5rem 0; }
+  .section-title { font-size: 1.35rem; }
+  .section-divider { margin-bottom: 1rem; }
+
+  .hero { padding: 2rem 0; }
+  .hero h1 { font-size: 1.5rem; line-height: 1.3; }
+  .hero p { font-size: 0.9rem; margin-bottom: 1rem !important; }
+  .hero .input-group-lg .form-control { font-size: 0.9rem; padding: 0.5rem 0.75rem; }
+  .hero .input-group-lg .btn { font-size: 0.85rem; padding: 0.5rem 0.75rem; }
+  .hero .input-group-lg .input-group-text { padding: 0.5rem; }
+
+  /* Stats bar: 2x2 grid with tighter layout */
+  .stats-bar .stat-icon {
+    width: 36px; height: 36px; min-width: 36px; font-size: 1rem;
+  }
+  .stats-bar .fs-4 { font-size: 1.25rem !important; }
+
   .auth-card { padding: 1.75rem 1.25rem; }
-  .pricing-card { padding: 1.5rem; }
+  .pricing-card { padding: 1.25rem; }
+  .pricing-price { font-size: 2rem; }
+
+  /* Exam cards: tighter padding */
+  .exam-card .card-body { padding: 1rem; }
+  .exam-card .exam-title { font-size: 0.9rem; }
+  .exam-meta { font-size: 0.75rem; }
+
+  /* Blog cards */
+  .blog-card .blog-image { height: 140px; }
+  .blog-card .blog-title { font-size: 0.9rem; }
 }
 
 @media (max-width: 768px) {
   .test-layout { flex-direction: column; }
   .question-palette { grid-template-columns: repeat(8, 1fr); }
+
+  /* Hero search: full width, remove search button text */
+  .hero .input-group { max-width: 100%; }
+
+  /* d-flex sections: stack alignment */
+  .d-flex.justify-content-between.align-items-end {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 0.5rem;
+  }
 }
 
 /* ============================================================

@@ -67,37 +67,15 @@ $status_labels = [
 ?>
 
 <!-- Hero Section -->
-<section class="hero text-white py-5">
+<section class="hero text-white">
     <div class="container">
         <div class="row justify-content-center text-center">
             <div class="col-lg-8">
                 <h1 class="fw-bold mb-3">Your Gateway to Government Jobs</h1>
-                <p class="lead mb-4">Latest SSC, UPSC, Railway, Banking notifications &amp; free mock tests</p>
-
-                <!-- Live Search Bar -->
-                <div class="position-relative mb-4">
-                    <div class="input-group input-group-lg shadow">
-                        <span class="input-group-text bg-white border-end-0">
-                            <i class="fa-solid fa-magnifying-glass text-muted"></i>
-                        </span>
-                        <input type="search"
-                               id="global-search"
-                               class="form-control border-start-0 border-end-0"
-                               placeholder="Search exams, tests, blogs..."
-                               autocomplete="off">
-                        <button class="btn btn-warning fw-semibold px-4" type="button"
-                                onclick="document.getElementById('global-search').dispatchEvent(new Event('input'))">
-                            Search
-                        </button>
-                    </div>
-                    <div id="search-results-dropdown"
-                         class="position-absolute w-100 bg-white rounded-3 shadow-lg mt-1 text-dark"
-                         style="z-index:1050;display:none;max-height:400px;overflow-y:auto;">
-                    </div>
-                </div>
+                <p class="lead mb-4">Latest SSC, UPSC, Railway, Banking notifications &amp; free mock tests — all in one place.</p>
 
                 <!-- Category Pills -->
-                <div class="d-flex flex-wrap justify-content-center gap-2">
+                <div class="category-pills mb-3">
                     <?php foreach ($categories as $cat): ?>
                         <a href="/pages/exams/listing.php?category=<?= urlencode($cat) ?>"
                            class="btn btn-sm btn-light fw-semibold rounded-pill px-3 shadow-sm">
@@ -106,13 +84,23 @@ $status_labels = [
                         </a>
                     <?php endforeach; ?>
                 </div>
+
+                <!-- CTA Buttons -->
+                <div class="d-flex flex-wrap justify-content-center gap-2 mt-3">
+                    <a href="/pages/exams/" class="btn btn-light btn-lg fw-semibold shadow-sm">
+                        <i class="fa-solid fa-bell me-2 text-primary"></i>View Notifications
+                    </a>
+                    <a href="/pages/tests/" class="btn btn-warning btn-lg fw-semibold shadow-sm">
+                        <i class="fa-solid fa-file-pen me-2"></i>Start Mock Test
+                    </a>
+                </div>
             </div>
         </div>
     </div>
 </section>
 
 <!-- Stats Bar -->
-<section class="bg-white border-bottom py-4">
+<section class="stats-bar bg-white border-bottom py-4">
     <div class="container">
         <div class="row g-3 text-center">
             <div class="col-6 col-md-3">
