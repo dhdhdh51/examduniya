@@ -12,11 +12,11 @@ $sort     = trim($_GET['sort'] ?? 'newest');
 $page     = max(1, (int)($_GET['page'] ?? 1));
 $per_page = 15;
 
-// Allowed categories
-$allowed_cats    = ['SSC', 'UPSC', 'Railway', 'Banking', 'StatePSC', 'Defence', 'Other'];
+// Allowed categories: pull the managed list (any exam name supported)
+$allowed_cats     = get_exam_categories();
 $allowed_statuses = ['upcoming', 'active', 'result', 'admitcard'];
 
-if ($category && !in_array($category, $allowed_cats, true)) $category = '';
+// Category is free-form; just trim it. (No longer restricted to a fixed set.)
 if ($status   && !in_array($status,   $allowed_statuses, true)) $status = '';
 
 // Build WHERE
@@ -107,7 +107,7 @@ function build_filter_url($overrides = [])
                            class="list-group-item list-group-item-action d-flex justify-content-between<?= !$category ? ' active' : '' ?>">
                             All Categories
                         </a>
-                        <?php foreach (['SSC', 'UPSC', 'Railway', 'Banking', 'StatePSC', 'Defence', 'Other'] as $cat): ?>
+                        <?php foreach ($allowed_cats as $cat): ?>
                             <a href="<?= htmlspecialchars(build_filter_url(['category' => $cat, 'page' => 1])) ?>"
                                class="list-group-item list-group-item-action<?= ($category === $cat) ? ' active' : '' ?>">
                                 <?= htmlspecialchars($cat === 'StatePSC' ? 'State PSC' : $cat) ?>

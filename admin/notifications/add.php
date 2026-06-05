@@ -127,12 +127,15 @@ require_once ROOT . '/includes/admin_sidebar.php';
           <!-- Category -->
           <div class="col-md-6">
             <label class="form-label fw-semibold">Category <span class="text-danger">*</span></label>
-            <select name="category" class="form-select" required>
-              <option value="">-- Select --</option>
-              <?php foreach (['SSC','UPSC','Railway','Banking','StatePSC','Defence','Other'] as $cat): ?>
-              <option value="<?= $cat ?>" <?= ($_POST['category']??'')===$cat?'selected':'' ?>><?= $cat ?></option>
+            <input type="text" name="category" class="form-control" required list="category-list"
+                   value="<?= htmlspecialchars($_POST['category'] ?? '') ?>"
+                   placeholder="Type or pick — e.g. UP Police, UPSSSC, SSC">
+            <datalist id="category-list">
+              <?php foreach (get_exam_categories() as $cat): ?>
+              <option value="<?= htmlspecialchars($cat) ?>"></option>
               <?php endforeach; ?>
-            </select>
+            </datalist>
+            <div class="form-text">Type any exam name — it's not limited to the suggestions.</div>
           </div>
 
           <!-- Conducting Body -->

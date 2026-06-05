@@ -13,12 +13,12 @@ $sort       = trim($_GET['sort'] ?? 'newest');
 $page       = max(1, (int)($_GET['page'] ?? 1));
 $per_page   = 15;
 
-$allowed_types  = ['SSC', 'UPSC', 'Railway', 'Banking', 'StatePSC', 'Defence', 'Other'];
+$allowed_types  = get_exam_categories();
 $allowed_diff   = ['easy', 'medium', 'hard'];
 $allowed_access = ['free', 'premium'];
 $allowed_sorts  = ['newest', 'oldest', 'price_asc', 'price_desc'];
 
-if ($exam_type  && !in_array($exam_type, $allowed_types, true))   $exam_type  = '';
+// exam_type (category) is free-form now; just trim it.
 if ($difficulty && !in_array($difficulty, $allowed_diff, true))   $difficulty = '';
 if ($access     && !in_array($access, $allowed_access, true))     $access     = '';
 if (!in_array($sort, $allowed_sorts, true))                       $sort       = 'newest';
@@ -108,7 +108,7 @@ require_once ROOT . '/includes/navbar.php';
                     <h6 class="mb-0"><i class="fa-solid fa-filter me-2 text-primary"></i>Exam Type</h6>
                 </div>
                 <div class="card-body py-2">
-                    <?php foreach (['', 'SSC', 'UPSC', 'Railway', 'Banking', 'StatePSC', 'Defence', 'Other'] as $et):
+                    <?php foreach (array_merge([''], $allowed_types) as $et):
                         $label = $et === '' ? 'All Types' : ($et === 'StatePSC' ? 'State PSC' : htmlspecialchars($et));
                         $active = ($exam_type === $et) ? ' active' : '';
                     ?>

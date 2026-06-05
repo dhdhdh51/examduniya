@@ -36,7 +36,8 @@ CREATE TABLE IF NOT EXISTS notifications (
     slug VARCHAR(255) UNIQUE,
     short_desc TEXT,
     full_content LONGTEXT,
-    category ENUM('SSC','UPSC','Railway','Banking','StatePSC','Defence','Other'),
+    -- Free-form category so ANY exam can be added (UP Police, UPSSSC, MP Police, etc.)
+    category VARCHAR(100),
     conducting_body VARCHAR(150),
     notification_date DATE,
     last_date_apply DATE,
@@ -61,7 +62,8 @@ CREATE TABLE IF NOT EXISTS mock_tests (
     title VARCHAR(255),
     slug VARCHAR(255) UNIQUE,
     description TEXT,
-    category ENUM('SSC','UPSC','Railway','Banking','StatePSC','Defence','Other'),
+    -- Free-form category so ANY exam can be added (UP Police, UPSSSC, etc.)
+    category VARCHAR(100),
     total_questions INT DEFAULT 0,
     duration_minutes INT DEFAULT 60,
     marks_per_question DECIMAL(4,2) DEFAULT 2.00,
@@ -206,3 +208,28 @@ INSERT INTO settings (setting_key, setting_value, setting_group) VALUES
 ('google_client_id', '', 'google'),
 ('google_client_secret', '', 'google'),
 ('google_redirect_uri', '', 'google');
+
+-- Managed list of exam categories (powers admin suggestions + public filters).
+-- category columns above are free-form VARCHAR, so you can use ANY name.
+CREATE TABLE IF NOT EXISTS exam_categories (
+    id         INT AUTO_INCREMENT PRIMARY KEY,
+    name       VARCHAR(100) UNIQUE NOT NULL,
+    sort_order INT NOT NULL DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+INSERT INTO exam_categories (name, sort_order) VALUES
+    ('SSC', 1),
+    ('UPSC', 2),
+    ('Railway', 3),
+    ('Banking', 4),
+    ('State PSC', 5),
+    ('Defence', 6),
+    ('UP Police', 7),
+    ('UPSSSC', 8),
+    ('Bihar Police', 9),
+    ('MP Police', 10),
+    ('Rajasthan Police', 11),
+    ('Teaching (CTET/TET)', 12),
+    ('Nursing', 13),
+    ('Other', 99);

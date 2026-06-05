@@ -570,6 +570,54 @@ function require_login()
 }
 
 /**
+ * Get the list of exam-category names for dropdown suggestions.
+ *
+ * Pulls from the managed exam_categories table when present, and also
+ * includes any distinct categories already used by notifications/tests
+ * (so nothing is missing even before the table is seeded). Falls back to
+ * a sensible default list if the table doesn't exist yet.
+ *
+ * @return string[]
+ */
+function get_exam_categories()
+{
+    global $pdo;
+    $cats = [];
+
+    try {
+        $rows = $pdo->query("SELECT name FROM exam_categories ORDER BY sort_order ASC, name ASC")
+                    ->fetchAll(PDO::FETCH_COLUMN);
+        if ($rows) {
+            $cats = $rows;
+        }
+    } catch (Throwable $e) {
+        // table not created yet — use defaults below
+    }
+
+    if (empty($cats)) {
+        $cats = ['SSC', 'UPSC', 'Railway', 'Banking', 'State PSC', 'Defence',
+                 'UP Police', 'UPSSSC', 'Bihar Police', 'MP Police', 'Other'];
+    }
+
+    // Merge in any categories already used in the data so none are dropped.
+    foreach (['notifications', 'mock_tests'] as $tbl) {
+        try {
+            $used = $pdo->query("SELECT DISTINCT category FROM {$tbl} WHERE category IS NOT NULL AND category <> ''")
+                        ->fetchAll(PDO::FETCH_COLUMN);
+            foreach ($used as $u) {
+                if (!in_array($u, $cats, true)) {
+                    $cats[] = $u;
+                }
+            }
+        } catch (Throwable $e) {
+            // ignore
+        }
+    }
+
+    return $cats;
+}
+
+/**
  * Does the given user currently have premium access?
  *
  * Access is granted if ANY of the following is true:

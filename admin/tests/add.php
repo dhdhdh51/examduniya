@@ -108,12 +108,14 @@ require_once ROOT . '/includes/admin_sidebar.php';
           </div>
           <div class="col-md-4">
             <label class="form-label fw-semibold">Category</label>
-            <select name="category" class="form-select">
-              <option value="">-- Select --</option>
-              <?php foreach (['SSC','UPSC','Railway','Banking','StatePSC','Defence','Other'] as $cat): ?>
-              <option value="<?= $cat ?>" <?= ($_POST['category']??'')===$cat?'selected':'' ?>><?= $cat ?></option>
+            <input type="text" name="category" class="form-control" list="category-list"
+                   value="<?= htmlspecialchars($_POST['category'] ?? '') ?>"
+                   placeholder="e.g. UP Police, SSC">
+            <datalist id="category-list">
+              <?php foreach (get_exam_categories() as $cat): ?>
+              <option value="<?= htmlspecialchars($cat) ?>"></option>
               <?php endforeach; ?>
-            </select>
+            </datalist>
           </div>
           <div class="col-md-6">
             <label class="form-label">Subject</label>
