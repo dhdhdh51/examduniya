@@ -291,7 +291,9 @@ $status_labels = [
                                     </li>
                                 <?php endif; ?>
                             </ul>
-                            <a href="/pages/tests/detail.php?slug=<?= urlencode($test['slug'] ?? '') ?>"
+                            <a href="<?= $is_free
+                                    ? '/pages/tests/attempt.php?test_id=' . (int)$test['id']
+                                    : '/pages/tests/purchase.php?test_id=' . (int)$test['id'] ?>"
                                class="btn <?= $is_free ? 'btn-success' : 'btn-primary' ?> w-100">
                                 <?= $is_free ? 'Start Free Test' : 'View Test' ?>
                                 <i class="fa-solid fa-arrow-right ms-1"></i>

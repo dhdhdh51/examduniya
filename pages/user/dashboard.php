@@ -206,7 +206,7 @@ require_once ROOT . '/includes/navbar.php';
                                     <div><i class="fa-solid fa-clock me-1"></i><?= (int)$pt['duration_minutes'] ?> min</div>
                                     <div><i class="fa-solid fa-calendar me-1"></i>Purchased: <?= htmlspecialchars(format_date($pt['purchase_date'])) ?></div>
                                 </div>
-                                <a href="/pages/tests/detail.php?slug=<?= urlencode($pt['slug'] ?? '') ?>"
+                                <a href="/pages/tests/attempt.php?test_id=<?= (int)$pt['id'] ?>"
                                    class="btn btn-primary btn-sm w-100 mt-auto">
                                     Start Test <i class="fa-solid fa-arrow-right ms-1"></i>
                                 </a>

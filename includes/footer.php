@@ -40,7 +40,7 @@ $site_url  = get_setting('site_url') ?: '#';
           <li class="mb-1"><a href="/pages/tests/" class="text-secondary text-decoration-none">Mock Tests</a></li>
           <li class="mb-1"><a href="/pages/blog/" class="text-secondary text-decoration-none">Blog</a></li>
           <li class="mb-1"><a href="/auth/login.php" class="text-secondary text-decoration-none">Login</a></li>
-          <li class="mb-1"><a href="/auth/register.php" class="text-secondary text-decoration-none">Register</a></li>
+          <li class="mb-1"><a href="/auth/signup.php" class="text-secondary text-decoration-none">Register</a></li>
         </ul>
       </div>
       <div class="col-lg-4 col-md-6">

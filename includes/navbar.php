@@ -1,5 +1,6 @@
 <?php
 $site_name  = get_setting('site_name') ?: 'GovExam Portal';
+$site_logo  = get_setting('site_logo');
 $current    = $_SERVER['REQUEST_URI'] ?? '/';
 $is_logged  = !empty($_SESSION['user_id']);
 $user_name  = $is_logged ? ($_SESSION['name'] ?? 'User') : '';
@@ -10,8 +11,12 @@ $user_avatar= $is_logged ? ($_SESSION['avatar'] ?? '') : '';
   <div class="container">
     <!-- Brand / Logo -->
     <a class="navbar-brand fw-bold text-primary d-flex align-items-center gap-2" href="/">
-      <i class="fa-solid fa-graduation-cap fs-4"></i>
-      <span><?= htmlspecialchars($site_name) ?></span>
+      <?php if (!empty($site_logo)): ?>
+        <img src="/uploads/site/<?= htmlspecialchars($site_logo) ?>" alt="<?= htmlspecialchars($site_name) ?>" style="height:36px;width:auto;">
+      <?php else: ?>
+        <i class="fa-solid fa-graduation-cap fs-4"></i>
+        <span><?= htmlspecialchars($site_name) ?></span>
+      <?php endif; ?>
     </a>
 
     <!-- Mobile toggle -->
@@ -75,8 +80,8 @@ $user_avatar= $is_logged ? ($_SESSION['avatar'] ?? '') : '';
               <span class="d-none d-md-inline"><?= htmlspecialchars($user_name) ?></span>
             </button>
             <ul class="dropdown-menu dropdown-menu-end">
-              <li><a class="dropdown-item" href="/pages/dashboard.php"><i class="fa-solid fa-gauge me-2"></i>Dashboard</a></li>
-              <li><a class="dropdown-item" href="/pages/profile.php"><i class="fa-solid fa-user me-2"></i>Profile</a></li>
+              <li><a class="dropdown-item" href="/pages/user/dashboard.php"><i class="fa-solid fa-gauge me-2"></i>Dashboard</a></li>
+              <li><a class="dropdown-item" href="/pages/user/profile.php"><i class="fa-solid fa-user me-2"></i>Profile</a></li>
               <?php if ($user_role === 'admin'): ?>
                 <li><hr class="dropdown-divider"></li>
                 <li><a class="dropdown-item text-warning" href="/admin/"><i class="fa-solid fa-screwdriver-wrench me-2"></i>Admin Panel</a></li>
@@ -87,7 +92,7 @@ $user_avatar= $is_logged ? ($_SESSION['avatar'] ?? '') : '';
           </div>
         <?php else: ?>
           <a href="/auth/login.php" class="btn btn-sm btn-outline-primary">Login</a>
-          <a href="/auth/register.php" class="btn btn-sm btn-primary">Register</a>
+          <a href="/auth/signup.php" class="btn btn-sm btn-primary">Register</a>
         <?php endif; ?>
       </div>
     </div>

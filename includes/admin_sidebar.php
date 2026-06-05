@@ -127,8 +127,8 @@ function admin_nav_active($path, $current)
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link <?= admin_nav_active('/admin/blogs/comments', $current_uri) ?>"
-                 href="/admin/blogs/comments.php">
+              <a class="nav-link <?= admin_nav_active('/admin/comments', $current_uri) ?>"
+                 href="/admin/comments/">
                 <i class="fa-regular fa-comments me-2"></i>Comments
               </a>
             </li>

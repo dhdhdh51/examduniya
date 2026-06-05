@@ -15,6 +15,21 @@ CREATE TABLE IF NOT EXISTS users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- Default admin account
+--   Email:    admin@govexam.local
+--   Password: Admin@12345
+-- IMPORTANT: Log in and change this email/password immediately after install
+-- (Admin Panel > Users), or update the row below before importing.
+INSERT INTO users (name, email, password_hash, role, plan, email_verified)
+VALUES (
+    'Administrator',
+    'admin@govexam.local',
+    '$2y$10$UAB.T6cuW3Ses9gLupXNc.zVGnZ2yLKde2XKCvZN04cYR9BUnvn.O',
+    'admin',
+    'yearly',
+    1
+);
+
 CREATE TABLE IF NOT EXISTS notifications (
     id INT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(255),
