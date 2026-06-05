@@ -237,20 +237,21 @@ $csrf = csrf_token();
                 </div>
                 <div class="mb-3">
                   <label class="form-label">Model</label>
-                  <select class="form-select" name="gemini_model">
-                    <?php
-                    $models = [
-                        'gemini-2.0-flash' => 'gemini-2.0-flash (fast, recommended)',
-                        'gemini-1.5-flash' => 'gemini-1.5-flash (fast, cheap)',
-                        'gemini-1.5-pro'   => 'gemini-1.5-pro (smart, slower)',
-                        'gemini-pro'       => 'gemini-pro (legacy)',
-                    ];
-                    foreach ($models as $val => $label) {
-                        $sel = ($s['gemini_model'] === $val) ? ' selected' : '';
-                        echo '<option value="' . sanitize($val) . '"' . $sel . '>' . sanitize($label) . '</option>';
-                    }
-                    ?>
-                  </select>
+                  <input type="text" class="form-control" name="gemini_model" list="geminiModels"
+                         value="<?= sanitize($s['gemini_model']) ?>" placeholder="gemini-2.5-flash" autocomplete="off">
+                  <datalist id="geminiModels">
+                    <option value="gemini-2.5-pro">Gemini 2.5 Pro (most capable)</option>
+                    <option value="gemini-2.5-flash">Gemini 2.5 Flash (fast, latest)</option>
+                    <option value="gemini-2.0-flash">Gemini 2.0 Flash (fast, recommended)</option>
+                    <option value="gemini-1.5-pro">Gemini 1.5 Pro</option>
+                    <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
+                    <option value="gemini-pro">Gemini Pro (legacy)</option>
+                  </datalist>
+                  <div class="form-text">
+                    Type any model name your API key supports, or pick a suggestion. The latest available family
+                    is <strong>Gemini 2.5</strong> (there is no "3.5" yet). Use <strong>Test Gemini API</strong>
+                    below to confirm the model works.
+                  </div>
                 </div>
 
                 <div class="d-flex gap-2 flex-wrap">
