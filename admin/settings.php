@@ -27,7 +27,7 @@ $s = [
     'google_redirect_uri'  => get_setting('google_redirect_uri'),
     // gemini
     'gemini_api_key'       => get_setting('gemini_api_key'),
-    'gemini_model'         => get_setting('gemini_model') ?: 'gemini-2.0-flash',
+    'gemini_model'         => get_setting('gemini_model') ?: 'gemini-3.5-flash',
     // telegram
     'telegram_bot_token'   => get_setting('telegram_bot_token'),
     'telegram_chat_ids'    => get_setting('telegram_chat_ids'),
@@ -237,20 +237,23 @@ $csrf = csrf_token();
                 </div>
                 <div class="mb-3">
                   <label class="form-label">Model</label>
-                  <select class="form-select" name="gemini_model">
-                    <?php
-                    $models = [
-                        'gemini-2.0-flash' => 'gemini-2.0-flash (fast, recommended)',
-                        'gemini-1.5-flash' => 'gemini-1.5-flash (fast, cheap)',
-                        'gemini-1.5-pro'   => 'gemini-1.5-pro (smart, slower)',
-                        'gemini-pro'       => 'gemini-pro (legacy)',
-                    ];
-                    foreach ($models as $val => $label) {
-                        $sel = ($s['gemini_model'] === $val) ? ' selected' : '';
-                        echo '<option value="' . sanitize($val) . '"' . $sel . '>' . sanitize($label) . '</option>';
-                    }
-                    ?>
-                  </select>
+                  <input type="text" class="form-control" name="gemini_model" list="geminiModels"
+                         value="<?= sanitize($s['gemini_model']) ?>" placeholder="gemini-3.5-flash" autocomplete="off">
+                  <datalist id="geminiModels">
+                    <option value="gemini-3.5-flash">Gemini 3.5 Flash (latest, recommended)</option>
+                    <option value="gemini-3.5-pro">Gemini 3.5 Pro (most capable)</option>
+                    <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
+                    <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
+                    <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+                    <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
+                    <option value="gemini-1.5-pro">Gemini 1.5 Pro</option>
+                    <option value="gemini-pro">Gemini Pro (legacy)</option>
+                  </datalist>
+                  <div class="form-text">
+                    Pick a suggestion or type any model name your API key supports. The current recommended model
+                    is <strong>gemini-3.5-flash</strong>. Use <strong>Test Gemini API</strong> below to confirm
+                    the chosen model works with your key.
+                  </div>
                 </div>
 
                 <div class="d-flex gap-2 flex-wrap">

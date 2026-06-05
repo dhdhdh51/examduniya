@@ -38,7 +38,7 @@ if (empty($api_key)) {
     exit;
 }
 
-$model = get_setting('gemini_model') ?: 'gemini-2.0-flash';
+$model = get_setting('gemini_model') ?: 'gemini-3.5-flash';
 $url = 'https://generativelanguage.googleapis.com/v1beta/models/' . urlencode($model)
      . ':generateContent?key=' . urlencode($api_key);
 

@@ -58,7 +58,7 @@ function set_setting($key, $value)
 function call_gemini($prompt)
 {
     $api_key = get_setting('gemini_api_key');
-    $model = get_setting('gemini_model') ?: 'gemini-2.0-flash';
+    $model = get_setting('gemini_model') ?: 'gemini-3.5-flash';
 
     if (empty($api_key)) {
         return '';

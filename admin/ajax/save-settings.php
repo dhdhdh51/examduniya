@@ -68,7 +68,6 @@ $toggle_keys = [
 
 // Allowed enumerated values for certain keys.
 $enums = [
-    'gemini_model'    => ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-pro'],
     'payu_mode'       => ['test', 'live'],
     'smtp_encryption' => ['tls', 'ssl', 'none'],
 ];
@@ -104,6 +103,15 @@ try {
             // Enum validation
             if (isset($enums[$key]) && !in_array($value, $enums[$key], true)) {
                 continue; // ignore invalid enum value
+            }
+
+            // Gemini model: accept any model name Google may offer.
+            // Keep it to a safe charset (letters, numbers, dot, dash) so it is
+            // always URL-safe when used in the API endpoint.
+            if ($key === 'gemini_model') {
+                if ($value === '' || !preg_match('/^[A-Za-z0-9.\-]{2,60}$/', $value)) {
+                    continue; // ignore invalid / empty model name
+                }
             }
 
             // Numeric normalisation
