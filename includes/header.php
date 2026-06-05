@@ -41,7 +41,7 @@ $ga_id     = get_setting('google_analytics_id');
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
 <!-- Custom CSS -->
-<link href="/assets/css/style.css" rel="stylesheet">
+<link href="<?= asset('/assets/css/style.css') ?>" rel="stylesheet">
 
 <?php if ($ga_id): ?>
 <!-- Google Analytics -->

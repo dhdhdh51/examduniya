@@ -9,6 +9,21 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception as MailerException;
 
 /**
+ * Build a versioned URL for a local asset (cache-busting).
+ * Appends ?v=<file-modified-time> so browsers always fetch the latest
+ * file after a deploy, without needing a manual hard refresh.
+ *
+ * @param string $path Web path, e.g. "/assets/js/main.js"
+ * @return string
+ */
+function asset($path)
+{
+    $file = ROOT . '/' . ltrim($path, '/');
+    $ver  = @filemtime($file);
+    return $path . '?v=' . ($ver ?: '1');
+}
+
+/**
  * Retrieve a setting value from the settings table with static cache
  *
  * @param string $key Setting key
