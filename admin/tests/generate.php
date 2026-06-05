@@ -62,14 +62,15 @@ require_once ROOT . '/includes/admin_sidebar.php';
             </div>
             <div class="mb-3">
               <label class="form-label fw-semibold">Exam Type</label>
-              <select name="exam_type" id="exam-type" class="form-select">
-                <option value="SSC">SSC (Combined Graduate Level)</option>
-                <option value="UPSC">UPSC (Civil Services)</option>
-                <option value="Railway">Railway (RRB NTPC)</option>
-                <option value="Banking">Banking (IBPS/SBI)</option>
-                <option value="Defence">Defence (CDS/NDA)</option>
-                <option value="StatePSC">State PSC</option>
-              </select>
+              <input type="text" name="exam_type" id="exam-type" class="form-control"
+                     list="exam-type-list" value="SSC"
+                     placeholder="e.g. UP Police, UPSSSC, SSC">
+              <datalist id="exam-type-list">
+                <?php foreach (get_exam_categories() as $cat): ?>
+                <option value="<?= htmlspecialchars($cat) ?>"></option>
+                <?php endforeach; ?>
+              </datalist>
+              <div class="form-text">Type any exam (UP Police, UPSSSC...) or pick a suggestion.</div>
             </div>
             <div class="mb-3">
               <label class="form-label fw-semibold">Topic / Subject</label>
