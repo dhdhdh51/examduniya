@@ -166,6 +166,14 @@ function admin_nav_active($path, $current)
 
       <!-- Settings -->
       <li class="nav-item mt-1">
+        <a class="nav-link <?= admin_nav_active('/admin/ai', $current_uri) ?>"
+           href="/admin/ai/">
+          <i class="fa-solid fa-robot me-2"></i>AI Providers
+        </a>
+      </li>
+
+      <!-- Settings -->
+      <li class="nav-item mt-1">
         <a class="nav-link <?= admin_nav_active('/admin/settings', $current_uri) ?>"
            href="/admin/settings.php">
           <i class="fa-solid fa-gear me-2"></i>Settings

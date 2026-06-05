@@ -128,6 +128,41 @@ html, body {
     height: calc(100vh - 56px);
     overflow: hidden;
 }
+
+/* ---- SECTION TABS ---- */
+.section-tabs {
+    display: flex;
+    gap: .4rem;
+    overflow-x: auto;
+    padding: .6rem 1rem;
+    background: #fff;
+    border-bottom: 1px solid #e2e8f0;
+    -webkit-overflow-scrolling: touch;
+}
+.section-tab {
+    flex: 0 0 auto;
+    border: 1.5px solid #e2e8f0;
+    background: #f8fafc;
+    color: #475569;
+    font-weight: 600;
+    font-size: .82rem;
+    padding: .4rem .9rem;
+    border-radius: 50px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all .15s;
+}
+.section-tab:hover { border-color: #93c5fd; }
+.section-tab.active {
+    background: #2563EB;
+    border-color: #2563EB;
+    color: #fff;
+}
+.section-tab .sec-count {
+    font-size: .7rem;
+    opacity: .8;
+    margin-left: .2rem;
+}
 /* ---- PALETTE SIDEBAR ---- */
 .exam-palette {
     width: 220px;
@@ -308,10 +343,71 @@ html, body {
 .toast-item.toast-success { background: #059669; }
 @keyframes fade-in { from { opacity:0; transform: translateX(20px); } to { opacity:1; transform: translateX(0); } }
 
-@media (max-width: 640px) {
-    .exam-palette { width: 60px; min-width: 60px; }
-    .exam-palette h6, .palette-legend, #btn-submit-main { display: none; }
-    .btn-q { width: 28px; height: 28px; font-size: .65rem; }
+/* ---- MOBILE PALETTE TOGGLE (hidden on desktop) ---- */
+.palette-fab {
+    display: none;
+    position: fixed;
+    right: 1rem;
+    bottom: 1rem;
+    z-index: 1500;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: #2563EB;
+    color: #fff;
+    border: none;
+    box-shadow: 0 6px 18px rgba(37,99,235,.5);
+    font-size: 1.1rem;
+}
+.palette-backdrop {
+    display: none;
+    position: fixed;
+    inset: 56px 0 0 0;
+    background: rgba(0,0,0,.45);
+    z-index: 1400;
+}
+.palette-backdrop.show { display: block; }
+
+@media (max-width: 768px) {
+    .exam-layout { position: relative; }
+
+    /* Palette becomes a slide-in drawer from the left */
+    .exam-palette {
+        position: fixed;
+        top: 56px;
+        left: 0;
+        bottom: 0;
+        width: 260px;
+        min-width: 260px;
+        z-index: 1450;
+        transform: translateX(-100%);
+        transition: transform .25s ease;
+        box-shadow: 4px 0 18px rgba(0,0,0,.15);
+    }
+    .exam-palette.open { transform: translateX(0); }
+    .exam-palette h6, .palette-legend, #btn-submit-main { display: flex; }
+    .palette-grid { grid-template-columns: repeat(6, 1fr); }
+
+    .palette-fab { display: flex; align-items: center; justify-content: center; }
+
+    .exam-question-area { padding: 1rem .9rem 5rem; }
+    .question-text { padding: 1rem; font-size: .98rem; }
+    .option-item { padding: .7rem .85rem; }
+    .option-text { font-size: .9rem; }
+
+    /* Stack nav buttons, full width, easy to tap */
+    .question-nav { gap: .5rem; }
+    .question-nav .btn { flex: 1 1 calc(50% - .5rem); font-size: .85rem; padding: .55rem .5rem; }
+    .question-nav #btn-next { flex-basis: 100%; margin-left: 0 !important; }
+
+    .exam-topbar .exam-title { max-width: 40%; font-size: .82rem; }
+    #timer { font-size: 1.05rem; }
+
+    .section-tabs { padding: .5rem .75rem; }
+}
+
+@media (max-width: 380px) {
+    .palette-grid { grid-template-columns: repeat(5, 1fr); }
 }
 </style>
 </head>
@@ -339,8 +435,11 @@ html, body {
 <!-- MAIN LAYOUT -->
 <div class="exam-layout">
 
+    <!-- Mobile palette backdrop -->
+    <div class="palette-backdrop" id="palette-backdrop"></div>
+
     <!-- PALETTE SIDEBAR -->
-    <div class="exam-palette">
+    <div class="exam-palette" id="exam-palette">
         <h6>Question Palette</h6>
         <div class="palette-legend">
             <span><span class="btn-q answered"></span> Answered</span>
@@ -356,6 +455,9 @@ html, body {
 
     <!-- QUESTION AREA -->
     <div class="exam-question-area">
+
+        <!-- Section tabs (only shown when the test has multiple subjects) -->
+        <div class="section-tabs" id="section-tabs" style="display:none"></div>
 
         <?php if ($payment_success): ?>
             <div class="alert alert-success mb-3">
@@ -441,6 +543,11 @@ html, body {
     </div>
 </div>
 
+<!-- Mobile palette toggle button -->
+<button class="palette-fab" id="palette-fab" title="Question Palette" aria-label="Question Palette">
+    <i class="fa-solid fa-table-cells"></i>
+</button>
+
 <!-- Toast container -->
 <div class="toast-container" id="exam-toast-container"></div>
 
@@ -462,6 +569,49 @@ let startTime   = Date.now();
 let timerObj    = null;
 let autoSubmitting = false;
 
+// ---- SECTIONS (group questions by subject) ----
+// Each question keeps its original index; we just group them for navigation.
+let sections   = [];   // [{ name, indices: [globalIdx,...] }]
+let activeSection = 0;
+
+function buildSections() {
+    var map = {};
+    var order = [];
+    questions.forEach(function (q, i) {
+        var name = (q && (q.subject || q.section || q.topic)) ? String(q.subject || q.section || q.topic) : 'General';
+        if (!map[name]) { map[name] = []; order.push(name); }
+        map[name].push(i);
+    });
+    sections = order.map(function (name) { return { name: name, indices: map[name] }; });
+}
+
+function sectionOfQuestion(index) {
+    for (var s = 0; s < sections.length; s++) {
+        if (sections[s].indices.indexOf(index) !== -1) return s;
+    }
+    return 0;
+}
+
+function renderSectionTabs() {
+    var wrap = document.getElementById('section-tabs');
+    if (!wrap) return;
+    // Only show tabs when there is more than one section.
+    if (sections.length <= 1) { wrap.style.display = 'none'; return; }
+    wrap.style.display = 'flex';
+    wrap.innerHTML = '';
+    sections.forEach(function (sec, idx) {
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'section-tab' + (idx === activeSection ? ' active' : '');
+        btn.innerHTML = escapeText(sec.name) + '<span class="sec-count">(' + sec.indices.length + ')</span>';
+        btn.addEventListener('click', function () {
+            activeSection = idx;
+            loadQuestion(sec.indices[0]); // jump to first question of this section
+        });
+        wrap.appendChild(btn);
+    });
+}
+
 // ---- RESTORE SAVED ANSWERS ----
 if (savedAnswers && typeof savedAnswers === 'object') {
     Object.keys(savedAnswers).forEach(function(k) {
@@ -473,12 +623,15 @@ if (savedAnswers && typeof savedAnswers === 'object') {
 // ---- INIT ----
 document.addEventListener('DOMContentLoaded', function() {
     if (questions.length === 0) return;
+    buildSections();
+    renderSectionTabs();
     renderPalette();
     loadQuestion(0);
     initTimer();
     initFullscreen();
     initAntiCheat();
     initAutoSave();
+    initPaletteDrawer();
 
     document.getElementById('btn-next').addEventListener('click', function() {
         if (currentQ < questions.length - 1) loadQuestion(currentQ + 1);
@@ -568,6 +721,39 @@ function loadQuestion(index) {
 
     renderPalette();
     updateStatusBadge();
+
+    // Keep the active section tab in sync with the current question.
+    var sec = sectionOfQuestion(index);
+    if (sec !== activeSection) {
+        activeSection = sec;
+    }
+    renderSectionTabs();
+
+    // On mobile, close the palette drawer after picking a question.
+    closePaletteDrawer();
+}
+
+// ---- MOBILE PALETTE DRAWER ----
+function initPaletteDrawer() {
+    var fab      = document.getElementById('palette-fab');
+    var backdrop = document.getElementById('palette-backdrop');
+    if (fab) {
+        fab.addEventListener('click', function () {
+            var pal = document.getElementById('exam-palette');
+            if (pal) pal.classList.toggle('open');
+            if (backdrop) backdrop.classList.toggle('show');
+        });
+    }
+    if (backdrop) {
+        backdrop.addEventListener('click', closePaletteDrawer);
+    }
+}
+
+function closePaletteDrawer() {
+    var pal      = document.getElementById('exam-palette');
+    var backdrop = document.getElementById('palette-backdrop');
+    if (pal) pal.classList.remove('open');
+    if (backdrop) backdrop.classList.remove('show');
 }
 
 function updateStatusBadge() {

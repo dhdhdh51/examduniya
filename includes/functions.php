@@ -115,6 +115,168 @@ function call_gemini($prompt)
     return $text;
 }
 
+/* ============================================================
+   Multi-provider AI router (Gemini / OpenAI / Anthropic ...)
+   Reads providers from the ai_providers table.
+   ============================================================ */
+
+/**
+ * Fetch a provider row by key, or the default/first-enabled provider.
+ *
+ * @param string|null $key provider_key, or null for the default
+ * @return array|null
+ */
+function get_ai_provider($key = null)
+{
+    global $pdo;
+    try {
+        if ($key) {
+            $stmt = $pdo->prepare("SELECT * FROM ai_providers WHERE provider_key = ? LIMIT 1");
+            $stmt->execute([$key]);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $row ?: null;
+        }
+        // Prefer the enabled default; fall back to any enabled provider.
+        $row = $pdo->query(
+            "SELECT * FROM ai_providers
+             WHERE enabled = 1
+             ORDER BY is_default DESC, sort_order ASC
+             LIMIT 1"
+        )->fetch(PDO::FETCH_ASSOC);
+        return $row ?: null;
+    } catch (Throwable $e) {
+        return null;
+    }
+}
+
+/**
+ * Call any configured AI provider with a text prompt.
+ *
+ * @param string      $prompt     The prompt text
+ * @param string|null $providerKey Specific provider_key, or null for default
+ * @return array  ['success'=>bool, 'text'=>string, 'error'=>?string, 'provider'=>string, 'ms'=>int]
+ */
+function call_ai($prompt, $providerKey = null)
+{
+    $p = get_ai_provider($providerKey);
+    if (!$p) {
+        return ['success' => false, 'text' => '', 'error' => 'No AI provider is configured/enabled.', 'provider' => '', 'ms' => 0];
+    }
+    if (empty($p['api_key']) && $p['api_type'] !== 'gemini') {
+        return ['success' => false, 'text' => '', 'error' => $p['name'] . ' API key is not set.', 'provider' => $p['provider_key'], 'ms' => 0];
+    }
+    if (empty($p['api_key'])) {
+        return ['success' => false, 'text' => '', 'error' => $p['name'] . ' API key is not set.', 'provider' => $p['provider_key'], 'ms' => 0];
+    }
+
+    $start = microtime(true);
+    switch ($p['api_type']) {
+        case 'gemini':    $res = ai_call_gemini($p, $prompt);    break;
+        case 'anthropic': $res = ai_call_anthropic($p, $prompt); break;
+        case 'openai':
+        default:          $res = ai_call_openai($p, $prompt);    break;
+    }
+    $res['provider'] = $p['provider_key'];
+    $res['ms'] = (int) round((microtime(true) - $start) * 1000);
+    return $res;
+}
+
+/**
+ * Low-level cURL POST returning [body, http_code, curl_error].
+ */
+function ai_http_post($url, $payload, array $headers)
+{
+    $ch = curl_init($url);
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_POST           => true,
+        CURLOPT_POSTFIELDS     => $payload,
+        CURLOPT_HTTPHEADER     => $headers,
+        CURLOPT_TIMEOUT        => 45,
+        CURLOPT_SSL_VERIFYPEER => true,
+    ]);
+    $body = curl_exec($ch);
+    $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $err  = curl_error($ch);
+    curl_close($ch);
+    return [$body, $code, $err];
+}
+
+/** Gemini (Google Generative Language API). */
+function ai_call_gemini($p, $prompt)
+{
+    $base  = rtrim($p['endpoint'] ?: 'https://generativelanguage.googleapis.com/v1beta', '/');
+    $model = $p['model'] ?: 'gemini-3.5-flash';
+    $url   = $base . '/models/' . urlencode($model) . ':generateContent?key=' . urlencode($p['api_key']);
+
+    $payload = json_encode(['contents' => [['parts' => [['text' => $prompt]]]]]);
+    [$body, $code, $err] = ai_http_post($url, $payload, ['Content-Type: application/json']);
+
+    if ($err || $body === false) {
+        return ['success' => false, 'text' => '', 'error' => 'Connection error: ' . ($err ?: 'no response')];
+    }
+    $data = json_decode($body, true);
+    if ($code !== 200) {
+        return ['success' => false, 'text' => '', 'error' => $data['error']['message'] ?? ('HTTP ' . $code)];
+    }
+    $text = $data['candidates'][0]['content']['parts'][0]['text'] ?? '';
+    return ['success' => true, 'text' => trim($text), 'error' => null];
+}
+
+/** OpenAI-compatible chat completions (OpenAI, DeepSeek, Grok, OpenRouter, Groq...). */
+function ai_call_openai($p, $prompt)
+{
+    $base = rtrim($p['endpoint'] ?: 'https://api.openai.com/v1', '/');
+    $url  = $base . '/chat/completions';
+    $payload = json_encode([
+        'model'    => $p['model'] ?: 'gpt-4o-mini',
+        'messages' => [['role' => 'user', 'content' => $prompt]],
+    ]);
+    $headers = [
+        'Content-Type: application/json',
+        'Authorization: Bearer ' . $p['api_key'],
+    ];
+    [$body, $code, $err] = ai_http_post($url, $payload, $headers);
+
+    if ($err || $body === false) {
+        return ['success' => false, 'text' => '', 'error' => 'Connection error: ' . ($err ?: 'no response')];
+    }
+    $data = json_decode($body, true);
+    if ($code !== 200) {
+        return ['success' => false, 'text' => '', 'error' => $data['error']['message'] ?? ('HTTP ' . $code)];
+    }
+    $text = $data['choices'][0]['message']['content'] ?? '';
+    return ['success' => true, 'text' => trim($text), 'error' => null];
+}
+
+/** Anthropic Messages API (Claude). */
+function ai_call_anthropic($p, $prompt)
+{
+    $base = rtrim($p['endpoint'] ?: 'https://api.anthropic.com/v1', '/');
+    $url  = $base . '/messages';
+    $payload = json_encode([
+        'model'      => $p['model'] ?: 'claude-3-5-sonnet-latest',
+        'max_tokens' => 4096,
+        'messages'   => [['role' => 'user', 'content' => $prompt]],
+    ]);
+    $headers = [
+        'Content-Type: application/json',
+        'x-api-key: ' . $p['api_key'],
+        'anthropic-version: 2023-06-01',
+    ];
+    [$body, $code, $err] = ai_http_post($url, $payload, $headers);
+
+    if ($err || $body === false) {
+        return ['success' => false, 'text' => '', 'error' => 'Connection error: ' . ($err ?: 'no response')];
+    }
+    $data = json_decode($body, true);
+    if ($code !== 200) {
+        return ['success' => false, 'text' => '', 'error' => $data['error']['message'] ?? ('HTTP ' . $code)];
+    }
+    $text = $data['content'][0]['text'] ?? '';
+    return ['success' => true, 'text' => trim($text), 'error' => null];
+}
+
 /**
  * Send a Telegram message to all configured chat IDs
  *

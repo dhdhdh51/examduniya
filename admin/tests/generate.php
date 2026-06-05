@@ -11,6 +11,15 @@ $active_menu = 'tests';
 $tests = $pdo->query("SELECT id, title FROM mock_tests WHERE is_active=1 ORDER BY title ASC")
              ->fetchAll(PDO::FETCH_ASSOC);
 
+// Load enabled AI providers for the provider selector
+$ai_providers = [];
+try {
+    $ai_providers = $pdo->query("SELECT provider_key, name, is_default FROM ai_providers WHERE enabled = 1 ORDER BY is_default DESC, sort_order ASC")
+                        ->fetchAll(PDO::FETCH_ASSOC);
+} catch (Throwable $e) {
+    $ai_providers = [];
+}
+
 require_once ROOT . '/includes/admin_header.php';
 require_once ROOT . '/includes/admin_sidebar.php';
 ?>
@@ -34,6 +43,23 @@ require_once ROOT . '/includes/admin_sidebar.php';
         <div class="card-body">
           <form id="generate-form">
             <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
+            <div class="mb-3">
+              <label class="form-label fw-semibold">AI Provider</label>
+              <?php if (empty($ai_providers)): ?>
+                <div class="alert alert-warning py-2 mb-0 small">
+                  No AI provider enabled. <a href="/admin/ai/">Configure providers</a>.
+                </div>
+              <?php else: ?>
+                <select name="provider" id="ai-provider" class="form-select">
+                  <?php foreach ($ai_providers as $ap): ?>
+                    <option value="<?= htmlspecialchars($ap['provider_key']) ?>">
+                      <?= htmlspecialchars($ap['name']) ?><?= $ap['is_default'] ? ' (default)' : '' ?>
+                    </option>
+                  <?php endforeach; ?>
+                </select>
+                <div class="form-text">Manage keys/models in <a href="/admin/ai/">AI Providers</a>.</div>
+              <?php endif; ?>
+            </div>
             <div class="mb-3">
               <label class="form-label fw-semibold">Exam Type</label>
               <select name="exam_type" id="exam-type" class="form-select">
@@ -75,7 +101,7 @@ require_once ROOT . '/includes/admin_sidebar.php';
               </select>
             </div>
             <button type="button" id="generate-btn" class="btn btn-success w-100">
-              <i class="fas fa-wand-magic-sparkles me-1"></i>Generate with Gemini AI
+              <i class="fas fa-wand-magic-sparkles me-1"></i>Generate with AI
             </button>
           </form>
         </div>
@@ -167,6 +193,8 @@ document.getElementById("generate-btn").addEventListener("click", function() {
     var numQ = document.getElementById("num-questions").value;
     var difficulty = document.getElementById("difficulty").value;
     var language = document.getElementById("language").value;
+    var providerEl = document.getElementById("ai-provider");
+    var provider = providerEl ? providerEl.value : "";
 
     if (!topic) {
         alert("Please enter a topic.");
@@ -175,12 +203,13 @@ document.getElementById("generate-btn").addEventListener("click", function() {
 
     document.getElementById("generate-status").style.display = "block";
     document.getElementById("generate-spinner").style.display = "inline-block";
-    document.getElementById("generate-status-msg").textContent = "Generating " + numQ + " questions with Gemini AI...";
+    document.getElementById("generate-status-msg").textContent = "Generating " + numQ + " questions with AI...";
     document.getElementById("questions-result").style.display = "none";
     document.getElementById("generate-error").style.display = "none";
 
     var body = new URLSearchParams({
         csrf_token: csrfToken,
+        provider: provider,
         exam_type: examType,
         topic: topic,
         num_questions: numQ,
