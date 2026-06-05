@@ -570,6 +570,72 @@ function require_login()
 }
 
 /**
+ * Does the given user currently have premium access?
+ *
+ * Access is granted if ANY of the following is true:
+ *   - the user is an admin;
+ *   - the user has a premium role;
+ *   - the user has a non-free plan (monthly/yearly) that has not expired
+ *     (an empty/null plan_expiry is treated as no-expiry / lifetime);
+ *   - the user has at least one successful payment.
+ *
+ * This lets admins grant a plan manually (Admin > Users) WITHOUT a payment.
+ *
+ * @param int $user_id
+ * @return bool
+ */
+function user_has_premium($user_id)
+{
+    global $pdo;
+    $user_id = (int) $user_id;
+    if ($user_id <= 0) {
+        return false;
+    }
+
+    try {
+        $stmt = $pdo->prepare("SELECT role, plan, plan_expiry FROM users WHERE id = ? LIMIT 1");
+        $stmt->execute([$user_id]);
+        $u = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($u) {
+            // Admins always have access.
+            if (($u['role'] ?? '') === 'admin') {
+                return true;
+            }
+
+            $plan        = $u['plan'] ?? 'free';
+            $role        = $u['role'] ?? 'free';
+            $plan_expiry = $u['plan_expiry'] ?? null;
+
+            $has_plan = ($role === 'premium') || ($plan !== '' && $plan !== 'free');
+
+            if ($has_plan) {
+                // No expiry set => treat as active (lifetime / admin-granted).
+                if (empty($plan_expiry) || $plan_expiry === '0000-00-00') {
+                    return true;
+                }
+                // Active if expiry is today or in the future.
+                if (strtotime($plan_expiry) >= strtotime(date('Y-m-d'))) {
+                    return true;
+                }
+            }
+        }
+
+        // Fallback: any successful payment unlocks premium.
+        $stmt = $pdo->prepare("SELECT id FROM payments WHERE user_id = ? AND status = 'success' LIMIT 1");
+        $stmt->execute([$user_id]);
+        if ($stmt->fetch()) {
+            return true;
+        }
+    } catch (Throwable $e) {
+        // On any error, fail closed (no access).
+        return false;
+    }
+
+    return false;
+}
+
+/**
  * Upload a file with MIME type validation
  *
  * @param array  $file          $_FILES element

@@ -20,17 +20,13 @@ if (!$test) {
     exit;
 }
 
-// Access check: free tests or users with successful payment (premium)
+// Access check: free tests, or users with an active premium plan / payment.
+// Premium includes admin-granted plans (role/plan set without a payment).
 $has_access = false;
 if ($test['access_type'] === 'free') {
     $has_access = true;
-} else {
-    // Check if user has a successful payment (premium plan)
-    $stmt = $pdo->prepare("SELECT id FROM payments WHERE user_id = ? AND status = 'success' LIMIT 1");
-    $stmt->execute([$_SESSION['user_id']]);
-    if ($stmt->fetch()) {
-        $has_access = true;
-    }
+} elseif (user_has_premium($_SESSION['user_id'])) {
+    $has_access = true;
 }
 
 if (!$has_access) {

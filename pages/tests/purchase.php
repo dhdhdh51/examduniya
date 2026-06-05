@@ -27,10 +27,8 @@ if ($test['access_type'] === 'free') {
     exit;
 }
 
-// Check if user has an active premium plan
-$stmt = $pdo->prepare("SELECT id FROM payments WHERE user_id = ? AND status = 'success' LIMIT 1");
-$stmt->execute([$_SESSION['user_id']]);
-if ($stmt->fetch()) {
+// Users with an active premium plan (incl. admin-granted) skip payment.
+if (user_has_premium($_SESSION['user_id'])) {
     header('Location: /pages/tests/attempt.php?test_id=' . $test_id);
     exit;
 }
