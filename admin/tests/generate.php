@@ -20,6 +20,10 @@ try {
     $ai_providers = [];
 }
 
+// Load exam syllabi for dynamic topic/subject suggestions
+require_once ROOT . '/includes/exam_syllabi.php';
+$syllabi_json = json_encode($EXAM_SYLLABI ?? []);
+
 require_once ROOT . '/includes/admin_header.php';
 require_once ROOT . '/includes/admin_sidebar.php';
 ?>
@@ -75,22 +79,17 @@ require_once ROOT . '/includes/admin_sidebar.php';
             <div class="mb-3">
               <label class="form-label fw-semibold">Topic / Subject</label>
               <input type="text" name="topic" id="topic" class="form-control"
-                     placeholder="e.g. Indian History, Quantitative Aptitude">
+                     list="topic-suggestions"
+                     placeholder="e.g. Indian History, Coding-Decoding">
+              <datalist id="topic-suggestions"></datalist>
+              <div class="form-text">Pick a topic from the syllabus suggestions, or type your own.</div>
             </div>
             <div class="mb-3">
               <label class="form-label fw-semibold">Assign to Subject / Section</label>
               <input type="text" name="subject" id="subject" class="form-control"
-                     placeholder="e.g. General Awareness" list="subject-suggestions">
-              <datalist id="subject-suggestions">
-                <option value="General Awareness">
-                <option value="Quantitative Aptitude">
-                <option value="Reasoning">
-                <option value="English">
-                <option value="General Science">
-                <option value="Current Affairs">
-                <option value="Computer Knowledge">
-              </datalist>
-              <div class="form-text">Questions get grouped under this subject as a section tab in the test. Leave blank to use the Topic.</div>
+                     placeholder="e.g. General Knowledge" list="subject-suggestions">
+              <datalist id="subject-suggestions"></datalist>
+              <div class="form-text">Questions get grouped under this subject as a section tab. Auto-filled from syllabus when you pick a topic.</div>
             </div>
             <div class="mb-3">
               <label class="form-label fw-semibold">Number of Questions</label>
@@ -203,6 +202,82 @@ $csrf = csrf_token();
 $extra_js = '<script>
 var generatedQuestions = [];
 var csrfToken = ' . json_encode($csrf) . ';
+var examSyllabi = ' . $syllabi_json . ';
+
+// Dynamic syllabus suggestions: when exam type changes, populate topic + subject datalists.
+(function() {
+    var examInput   = document.getElementById("exam-type");
+    var topicInput  = document.getElementById("topic");
+    var subjectInput= document.getElementById("subject");
+    var topicList   = document.getElementById("topic-suggestions");
+    var subjectList = document.getElementById("subject-suggestions");
+
+    function updateSuggestions() {
+        var exam = (examInput ? examInput.value.trim() : "");
+        topicList.innerHTML = "";
+        subjectList.innerHTML = "";
+        var data = examSyllabi[exam];
+        if (!data) {
+            // Try partial match (e.g. "UP Police Constable" matches "UP Police")
+            for (var key in examSyllabi) {
+                if (exam.toLowerCase().indexOf(key.toLowerCase()) !== -1 || key.toLowerCase().indexOf(exam.toLowerCase()) !== -1) {
+                    data = examSyllabi[key]; break;
+                }
+            }
+        }
+        if (!data) return;
+        // Subjects (numbered sections) go to subject datalist
+        for (var subj in data) {
+            var opt = document.createElement("option");
+            opt.value = subj;
+            subjectList.appendChild(opt);
+            // Topics go to topic datalist
+            var topics = data[subj];
+            for (var i = 0; i < topics.length; i++) {
+                var topt = document.createElement("option");
+                topt.value = topics[i];
+                topicList.appendChild(topt);
+            }
+        }
+    }
+
+    // Auto-fill subject when a topic is picked (find which subject it belongs to)
+    function autoFillSubject() {
+        var topic = (topicInput ? topicInput.value.trim() : "");
+        if (!topic) return;
+        var exam = (examInput ? examInput.value.trim() : "");
+        var data = examSyllabi[exam];
+        if (!data) {
+            for (var key in examSyllabi) {
+                if (exam.toLowerCase().indexOf(key.toLowerCase()) !== -1 || key.toLowerCase().indexOf(exam.toLowerCase()) !== -1) {
+                    data = examSyllabi[key]; break;
+                }
+            }
+        }
+        if (!data) return;
+        for (var subj in data) {
+            var topics = data[subj];
+            for (var i = 0; i < topics.length; i++) {
+                if (topics[i].toLowerCase() === topic.toLowerCase()) {
+                    if (subjectInput) subjectInput.value = subj;
+                    return;
+                }
+            }
+        }
+    }
+
+    if (examInput) {
+        examInput.addEventListener("change", updateSuggestions);
+        examInput.addEventListener("input", updateSuggestions);
+        updateSuggestions(); // run once on load
+    }
+    if (topicInput) {
+        topicInput.addEventListener("change", autoFillSubject);
+        topicInput.addEventListener("input", function() {
+            setTimeout(autoFillSubject, 100); // wait for datalist selection to settle
+        });
+    }
+})();
 
 document.getElementById("generate-btn").addEventListener("click", function() {
     var examType = document.getElementById("exam-type").value;
