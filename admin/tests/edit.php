@@ -55,13 +55,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $options = array_values(array_map('trim', $q['options'] ?? []));
         $correct = strtoupper(trim($q['correct'] ?? 'A'));
         $explanation = trim($q['explanation'] ?? '');
+        $q_subject = trim($q['subject'] ?? '');
         if (count($options) === 4) {
-            $questions[] = [
+            $entry = [
                 'question'    => $qtext,
                 'options'     => $options,
                 'correct'     => $correct,
                 'explanation' => $explanation,
             ];
+            if ($q_subject !== '') {
+                $entry['subject'] = $q_subject;
+            }
+            $questions[] = $entry;
         }
     }
     $total_questions = count($questions);
@@ -208,6 +213,7 @@ function addQuestion(data) {
     var q = data || {};
     var opts = q.options || ["", "", "", ""];
     var correct = q.correct || "A";
+    var subject = q.subject || "";
     var letters = ["A","B","C","D"];
     var optHtml = "";
     for (var i = 0; i < 4; i++) {
@@ -231,11 +237,16 @@ function addQuestion(data) {
         + "</textarea>"
         + "<div class=\"row\">" + optHtml + "</div>"
         + "<div class=\"row align-items-center mt-2\">"
-        + "<div class=\"col-md-6\">"
+        + "<div class=\"col-md-4\">"
         + "<label class=\"form-label small mb-1\">Correct Answer</label>"
         + "<select name=\"questions[" + idx + "][correct]\" class=\"form-select form-select-sm\">" + selOpts + "</select>"
         + "</div>"
-        + "<div class=\"col-md-6\">"
+        + "<div class=\"col-md-4\">"
+        + "<label class=\"form-label small mb-1\">Subject / Section</label>"
+        + "<input type=\"text\" name=\"questions[" + idx + "][subject]\" class=\"form-control form-control-sm\" "
+        + "placeholder=\"e.g. Reasoning\" value=\"" + escHtml(subject) + "\">"
+        + "</div>"
+        + "<div class=\"col-md-4\">"
         + "<label class=\"form-label small mb-1\">Explanation (optional)</label>"
         + "<input type=\"text\" name=\"questions[" + idx + "][explanation]\" class=\"form-control form-control-sm\" "
         + "value=\"" + escHtml(q.explanation || "") + "\">"

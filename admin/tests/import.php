@@ -90,6 +90,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     ];
                     $correct = resolve_correct($data[5] ?? '', $opts);
                     $expl    = trim((string)($data[6] ?? ''));
+                    $subj    = trim((string)($data[7] ?? ''));  // optional subject column
 
                     if ($q_text === '') {
                         $row_errors[] = "Row $line_no: missing question text — skipped.";
@@ -104,12 +105,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         continue;
                     }
 
-                    $questions[] = [
+                    $q_entry = [
                         'question'    => $q_text,
                         'options'     => $opts,
                         'correct'     => $correct,
                         'explanation' => $expl,
                     ];
+                    if ($subj !== '') {
+                        $q_entry['subject'] = $subj;
+                    }
+                    $questions[] = $q_entry;
                 }
                 fclose($handle);
             } else {
@@ -266,6 +271,7 @@ require_once ROOT . '/includes/admin_sidebar.php';
                 <tr><td><code>option_d</code></td><td>Yes</td></tr>
                 <tr><td><code>correct</code></td><td>Yes (A-D, 1-4, or option text)</td></tr>
                 <tr><td><code>explanation</code></td><td>Optional</td></tr>
+                <tr><td><code>subject</code></td><td>Optional (section name, e.g. Reasoning)</td></tr>
               </tbody>
             </table>
           </div>
