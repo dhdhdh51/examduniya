@@ -591,8 +591,9 @@ function sectionOfQuestion(index) {
 function renderSectionTabs() {
     var wrap = document.getElementById('section-tabs');
     if (!wrap) return;
-    // Only show tabs when there is more than one section.
-    if (sections.length <= 1) { wrap.style.display = 'none'; return; }
+    // Always show the section bar (even with 1 section) so users see where sections appear.
+    // With 1 section it's just an info badge; with 2+ it becomes real navigation tabs.
+    if (sections.length === 0) { wrap.style.display = 'none'; return; }
     wrap.style.display = 'flex';
     wrap.innerHTML = '';
     sections.forEach(function (sec, idx) {

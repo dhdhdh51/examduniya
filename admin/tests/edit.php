@@ -166,11 +166,20 @@ require_once ROOT . '/includes/admin_sidebar.php';
 
     <!-- Question Builder -->
     <div class="card shadow-sm border-0 mb-4">
-      <div class="card-header bg-white d-flex justify-content-between align-items-center">
+      <div class="card-header bg-white d-flex justify-content-between align-items-center flex-wrap gap-2">
         <span class="fw-semibold">Questions <span class="badge bg-primary ms-1" id="q-count">0</span></span>
-        <button type="button" id="add-question-btn" class="btn btn-outline-primary btn-sm">
-          <i class="fas fa-plus"></i> Add Question
-        </button>
+        <div class="d-flex gap-2 flex-wrap">
+          <!-- Bulk assign subject to all questions -->
+          <div class="input-group input-group-sm" style="max-width:280px;">
+            <input type="text" id="bulk-subject" class="form-control" placeholder="Bulk assign subject to all">
+            <button type="button" id="bulk-subject-btn" class="btn btn-outline-success" title="Set this subject on ALL questions">
+              <i class="fas fa-tags"></i> Apply All
+            </button>
+          </div>
+          <button type="button" id="add-question-btn" class="btn btn-outline-primary btn-sm">
+            <i class="fas fa-plus"></i> Add Question
+          </button>
+        </div>
       </div>
       <div class="card-body">
         <div id="questions-container"></div>
@@ -265,6 +274,15 @@ existingQuestions.forEach(function(q) { addQuestion(q); });
 
 document.getElementById("add-question-btn").addEventListener("click", function() {
     addQuestion(null);
+});
+
+// Bulk assign subject to all questions at once
+document.getElementById("bulk-subject-btn").addEventListener("click", function() {
+    var subjectVal = document.getElementById("bulk-subject").value.trim();
+    if (!subjectVal) { alert("Enter a subject name first."); return; }
+    var inputs = document.querySelectorAll("input[name$=\'[subject]\']");
+    inputs.forEach(function(inp) { inp.value = subjectVal; });
+    if (window.showToast) showToast("Subject set to \"" + subjectVal + "\" for all " + inputs.length + " questions.", "success");
 });
 </script>';
 ?>
