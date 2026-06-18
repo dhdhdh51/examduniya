@@ -119,6 +119,8 @@ if (!empty($results)) {
     $avg_pct  = round(array_sum($pcts) / count($pcts));
 }
 
+require_once ROOT . '/includes/seo.php';
+seo_set(['robots' => 'noindex,follow']);
 require_once ROOT . '/includes/header.php';
 require_once ROOT . '/includes/navbar.php';
 ?>

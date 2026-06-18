@@ -59,7 +59,7 @@ $time_str = intdiv($time_taken, 3600) > 0
 
 $completed_at = !empty($attempt['completed_at']) ? format_date($attempt['completed_at'], 'd M Y h:i A') : date('d M Y');
 
-$site_name  = get_setting('site_name') ?: 'GovExam Portal';
+$site_name  = get_setting('site_name') ?: 'Exam Duniya';
 $user_name  = $_SESSION['name'] ?? 'Candidate';
 $user_email = $_SESSION['email'] ?? '';
 

@@ -50,7 +50,8 @@ if (empty($token)) {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Verify Email &mdash; GovExam Portal</title>
+<meta name="robots" content="noindex,follow">
+<title>Verify Email &mdash; Exam Duniya</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
@@ -62,7 +63,7 @@ if (empty($token)) {
     <div class="col-md-5 col-lg-4">
       <div class="auth-card p-4 p-md-5 shadow-lg text-center">
         <div class="auth-logo mb-3">&#x1F4DA;</div>
-        <h4 class="fw-bold mb-1">GovExam Portal</h4>
+        <h4 class="fw-bold mb-1">Exam Duniya</h4>
         <h5 class="fw-semibold mb-4">Email Verification</h5>
 
         <?php if ($success): ?>

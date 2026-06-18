@@ -35,9 +35,11 @@ if (user_has_premium($_SESSION['user_id'])) {
 
 $monthly_price = (float)(get_setting('plan_monthly_price') ?: 99);
 $yearly_price  = (float)(get_setting('plan_yearly_price') ?: 799);
-$site_name     = get_setting('site_name') ?: 'GovExam Portal';
+$site_name     = get_setting('site_name') ?: 'Exam Duniya';
 
 $page_title = 'Get Premium Access — ' . htmlspecialchars($test['title']);
+require_once ROOT . '/includes/seo.php';
+seo_set(['robots' => 'noindex,follow']);
 require_once ROOT . '/includes/header.php';
 require_once ROOT . '/includes/navbar.php';
 ?>

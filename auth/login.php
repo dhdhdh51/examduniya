@@ -78,7 +78,8 @@ $page_title = 'Login';
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Login &mdash; GovExam Portal</title>
+<meta name="robots" content="noindex,follow">
+<title>Login &mdash; Exam Duniya</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
@@ -94,7 +95,7 @@ $page_title = 'Login';
         <!-- Logo -->
         <div class="text-center mb-4">
           <div style="font-size:2.75rem;line-height:1">&#x1F4DA;</div>
-          <h4 class="fw-bold mt-2 mb-0">GovExam Portal</h4>
+          <h4 class="fw-bold mt-2 mb-0">Exam Duniya</h4>
           <p class="text-muted small mt-1">Sign in to your account</p>
         </div>
 

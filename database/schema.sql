@@ -1,4 +1,4 @@
--- GovExam Portal Database Schema
+-- Exam Duniya Database Schema
 -- Run this SQL against your MySQL database to create all required tables
 
 CREATE TABLE IF NOT EXISTS users (
@@ -180,7 +180,7 @@ INSERT INTO settings (setting_key, setting_value, setting_group) VALUES
 ('smtp_username', '', 'smtp'),
 ('smtp_password', '', 'smtp'),
 ('smtp_from_email', '', 'smtp'),
-('smtp_from_name', 'GovExam Portal', 'smtp'),
+('smtp_from_name', 'Exam Duniya', 'smtp'),
 ('smtp_encryption', 'tls', 'smtp'),
 ('smtp_enabled', '1', 'smtp');
 
@@ -195,9 +195,9 @@ INSERT INTO settings (setting_key, setting_value, setting_group) VALUES
 
 -- Default settings: Site
 INSERT INTO settings (setting_key, setting_value, setting_group) VALUES
-('site_name', 'GovExam Portal', 'site'),
-('site_description', 'Government Exam Notifications, Mock Tests & Study Material', 'site'),
-('site_url', 'https://example.com', 'site'),
+('site_name', 'Exam Duniya', 'site'),
+('site_description', 'Get latest SSC, UPSC, Railway, Banking, Defence, UP Police and State Government job notifications, admit cards, results, syllabus, free mock tests and study material on Exam Duniya.', 'site'),
+('site_url', 'https://examduniya.in', 'site'),
 ('site_logo', '', 'site'),
 ('google_analytics_id', '', 'site'),
 ('maintenance_mode', '0', 'site'),

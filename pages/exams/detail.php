@@ -2,12 +2,14 @@
 define('ROOT', dirname(dirname(__DIR__)));
 require_once ROOT . '/config/db.php';
 require_once ROOT . '/includes/functions.php';
+require_once ROOT . '/includes/seo.php';
+require_once ROOT . '/includes/schema.php';
 if (session_status() === PHP_SESSION_NONE) session_start();
 maintenance_mode_check();
 
 $slug = trim($_GET['slug'] ?? '');
 if (!$slug) {
-    header('Location: /pages/exams/listing.php');
+    header('Location: /exams/');
     exit;
 }
 
@@ -21,9 +23,42 @@ if (!$notif) {
     exit;
 }
 
-$page_title = $notif['title'];
-$meta_desc  = excerpt($notif['short_desc'] ?? '', 160);
-$site_url   = rtrim(get_setting('site_url') ?: '', '/');
+$site_url   = rtrim((get_setting('canonical_domain') ?: get_setting('site_url')) ?: 'https://examduniya.in', '/');
+$clean_path = exam_url($notif['slug']);
+$page_url   = $site_url . $clean_path;
+
+// Effective official links (new fields first, then legacy fallbacks).
+$official_site   = $notif['official_website_url'] ?? '';
+if (!$official_site) { $official_site = $notif['official_url'] ?? ''; }
+$official_apply  = $notif['official_apply_url'] ?? '';
+$official_pdf    = $notif['official_notification_pdf_url'] ?? '';
+$legacy_pdf      = $notif['pdf_path'] ?? '';
+
+// SEO
+$year = '';
+if (!empty($notif['exam_date'])) { $year = date('Y', strtotime($notif['exam_date'])); }
+elseif (!empty($notif['notification_date'])) { $year = date('Y', strtotime($notif['notification_date'])); }
+$seo_title = !empty($notif['seo_title']) ? $notif['seo_title'] : seo_exam_title($notif['title'], $year);
+$seo_desc  = !empty($notif['meta_description'])
+    ? $notif['meta_description']
+    : seo_clamp_description($notif['short_desc'] ?? $notif['title']);
+$published = !empty($notif['created_at']) ? date('c', strtotime($notif['created_at'])) : null;
+$modified  = !empty($notif['updated_at']) ? date('c', strtotime($notif['updated_at'])) : $published;
+
+seo_set([
+    'title'          => $seo_title,
+    'description'    => $seo_desc,
+    'canonical'      => !empty($notif['canonical_url']) ? $notif['canonical_url'] : $clean_path,
+    'robots'         => 'index,follow',
+    'og_type'        => 'article',
+    'og_image'       => !empty($notif['featured_image']) ? '/uploads/notifications/' . $notif['featured_image'] : '',
+    'published_time' => $published,
+    'modified_time'  => $modified,
+]);
+
+// Lifecycle status (Asia/Kolkata aware).
+$lifecycle = notification_lifecycle_status($notif);
+[$life_label, $life_class] = lifecycle_status_label($lifecycle);
 
 // Related notifications (same category, exclude current)
 $stmt2 = $pdo->prepare("SELECT id, title, slug, category, status, last_date_apply FROM notifications WHERE category = ? AND id != ? ORDER BY created_at DESC LIMIT 4");
@@ -37,12 +72,27 @@ $status_labels = [
     'admitcard' => 'Admit Card',
 ];
 
-$wa_text = urlencode($notif['title'] . ' - ' . $site_url . '/notification/' . $notif['slug']);
+$wa_text = urlencode($notif['title'] . ' - ' . $page_url);
 $wa_url  = 'https://wa.me/?text=' . $wa_text;
-$page_url = $site_url . '/pages/exams/detail.php?slug=' . urlencode($notif['slug']);
 
 require_once ROOT . '/includes/header.php';
 require_once ROOT . '/includes/navbar.php';
+
+schema_breadcrumbs([
+    ['name' => 'Home', 'url' => '/'],
+    ['name' => 'Exams', 'url' => '/exams/'],
+    ['name' => $notif['category'] ?: 'Notification', 'url' => category_url($notif['category'] ?: '')],
+    ['name' => $notif['title'], 'url' => $clean_path],
+]);
+schema_article([
+    'type'          => 'Article',
+    'headline'      => $notif['title'],
+    'url'           => $clean_path,
+    'description'   => $seo_desc,
+    'image'         => !empty($notif['featured_image']) ? '/uploads/notifications/' . $notif['featured_image'] : '',
+    'datePublished' => $published,
+    'dateModified'  => $modified,
+]);
 ?>
 
 <div class="container my-4">
@@ -51,7 +101,7 @@ require_once ROOT . '/includes/navbar.php';
     <nav aria-label="breadcrumb" class="mb-3">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="/"><i class="fa-solid fa-house me-1"></i>Home</a></li>
-            <li class="breadcrumb-item"><a href="/pages/exams/listing.php">Exams</a></li>
+            <li class="breadcrumb-item"><a href="/exams/">Exams</a></li>
             <li class="breadcrumb-item active"><?= htmlspecialchars(mb_substr($notif['title'], 0, 40)) ?><?= mb_strlen($notif['title']) > 40 ? '...' : '' ?></li>
         </ol>
     </nav>
@@ -215,29 +265,67 @@ require_once ROOT . '/includes/navbar.php';
             <?php endif; ?>
 
             <!-- Official Links -->
-            <?php if ($notif['official_url'] || $notif['pdf_path']): ?>
+            <?php if ($official_site || $official_apply || $official_pdf || $legacy_pdf): ?>
                 <div class="card no-lift mb-4">
                     <div class="card-header">
-                        <h5 class="mb-0"><i class="fa-solid fa-link text-primary me-2"></i>Official Links</h5>
+                        <h5 class="mb-0"><i class="fa-solid fa-link text-primary me-2"></i>Important Official Links</h5>
                     </div>
                     <div class="card-body d-flex flex-wrap gap-2">
-                        <?php if ($notif['official_url']): ?>
-                            <a href="<?= htmlspecialchars($notif['official_url']) ?>"
-                               class="btn btn-primary"
-                               target="_blank" rel="noopener noreferrer">
-                                <i class="fa-solid fa-external-link me-2"></i>Official Website
+                        <?php if ($official_site): ?>
+                            <a href="<?= htmlspecialchars($official_site) ?>" class="btn btn-primary" target="_blank" rel="noopener noreferrer">
+                                <i class="fa-solid fa-globe me-2"></i>Official Website
                             </a>
                         <?php endif; ?>
-                        <?php if ($notif['pdf_path']): ?>
-                            <a href="/uploads/notifications/<?= htmlspecialchars($notif['pdf_path']) ?>"
-                               class="btn btn-outline-danger"
-                               target="_blank" rel="noopener noreferrer">
-                                <i class="fa-solid fa-file-pdf me-2"></i>Download PDF
+                        <?php if ($official_apply): ?>
+                            <a href="<?= htmlspecialchars($official_apply) ?>" class="btn btn-success" target="_blank" rel="noopener noreferrer">
+                                <i class="fa-solid fa-pen-to-square me-2"></i>Apply / Download
+                            </a>
+                        <?php endif; ?>
+                        <?php if ($official_pdf): ?>
+                            <a href="<?= htmlspecialchars($official_pdf) ?>" class="btn btn-outline-danger" target="_blank" rel="noopener noreferrer">
+                                <i class="fa-solid fa-file-pdf me-2"></i>Download Official Notification PDF
+                            </a>
+                        <?php elseif ($legacy_pdf): ?>
+                            <a href="/uploads/notifications/<?= htmlspecialchars($legacy_pdf) ?>" class="btn btn-outline-danger" target="_blank" rel="noopener noreferrer">
+                                <i class="fa-solid fa-file-pdf me-2"></i>Download Notification PDF
                             </a>
                         <?php endif; ?>
                     </div>
                 </div>
             <?php endif; ?>
+
+            <!-- Last Verified -->
+            <div class="card no-lift mb-4 border-success-subtle">
+                <div class="card-body d-flex flex-wrap justify-content-between align-items-center gap-2">
+                    <div>
+                        <span class="badge bg-success-subtle text-success border border-success-subtle">
+                            <i class="fa-solid fa-circle-check me-1"></i>Last Verified
+                        </span>
+                        <span class="ms-2 fw-semibold">
+                            <?= !empty($notif['last_verified_at'])
+                                ? htmlspecialchars(format_date($notif['last_verified_at'], 'd M Y'))
+                                : 'Pending verification' ?>
+                        </span>
+                        <div class="small text-muted mt-1">
+                            <?php if ($official_site): ?>
+                                Source: <a href="<?= htmlspecialchars($official_site) ?>" target="_blank" rel="noopener noreferrer">Official Recruitment Board Website</a>
+                            <?php else: ?>
+                                Always confirm details on the official website before applying.
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#correctionModal">
+                        <i class="fa-solid fa-flag me-1"></i>Report Correction
+                    </button>
+                </div>
+            </div>
+
+            <!-- Disclaimer -->
+            <p class="small text-muted">
+                <i class="fa-solid fa-circle-info me-1"></i>
+                Exam Duniya is an independent platform and is not affiliated with any government
+                recruitment board. Please verify all details on the official website before applying.
+            </p>
 
         </div>
 
@@ -303,7 +391,7 @@ require_once ROOT . '/includes/navbar.php';
                             <?php foreach ($related as $rel):
                                 $is_past_rel = !empty($rel['last_date_apply']) && strtotime($rel['last_date_apply']) < time();
                             ?>
-                                <a href="/pages/exams/detail.php?slug=<?= urlencode($rel['slug']) ?>"
+                                <a href="<?= htmlspecialchars(exam_url($rel['slug'])) ?>"
                                    class="list-group-item list-group-item-action py-3">
                                     <div class="d-flex justify-content-between align-items-start gap-2">
                                         <div class="fw-semibold small" style="line-height:1.4;">
@@ -356,3 +444,49 @@ function fallbackCopy(text) {
 </script>
 
 <?php require_once ROOT . '/includes/footer.php'; ?>
+
+<!-- Report Correction Modal -->
+<div class="modal fade" id="correctionModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="fa-solid fa-flag me-2 text-warning"></i>Report a Correction</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form id="examCorrectionForm">
+        <div class="modal-body">
+          <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
+          <input type="hidden" name="entity_type" value="notification">
+          <input type="hidden" name="entity_id" value="<?= (int)$notif['id'] ?>">
+          <input type="hidden" name="page_url" value="<?= htmlspecialchars($page_url) ?>">
+          <p class="small text-muted">Found a wrong date, link or detail on this page? Tell us and we'll verify it against the official source.</p>
+          <div class="mb-2">
+            <input type="email" name="email" class="form-control" placeholder="Your email (optional)">
+          </div>
+          <div class="mb-2">
+            <textarea name="message" class="form-control" rows="4" required placeholder="Describe what is incorrect, with the correct info / source link."></textarea>
+          </div>
+          <div id="examCorrectionMsg" class="small"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<script>
+document.getElementById('examCorrectionForm').addEventListener('submit', function (e) {
+  e.preventDefault();
+  var msg = document.getElementById('examCorrectionMsg');
+  msg.className = 'small text-muted'; msg.textContent = 'Sending...';
+  fetch('/api/report-correction.php', { method: 'POST', body: new FormData(e.target) })
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (d && d.success) { msg.className = 'small text-success'; msg.textContent = 'Thank you! Your report was submitted.'; e.target.reset(); }
+      else { msg.className = 'small text-danger'; msg.textContent = (d && d.error) ? d.error : 'Could not submit.'; }
+    })
+    .catch(function () { msg.className = 'small text-danger'; msg.textContent = 'Network error.'; });
+});
+</script>

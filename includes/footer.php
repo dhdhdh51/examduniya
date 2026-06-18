@@ -1,6 +1,8 @@
 <?php
-$site_name = get_setting('site_name') ?: 'GovExam Portal';
+$site_name = get_setting('site_name') ?: 'Exam Duniya';
 $site_url  = get_setting('site_url') ?: '#';
+$footer_disclaimer = get_setting('footer_disclaimer')
+    ?: 'Exam Duniya is an independent education and exam information platform. We are not affiliated with any government recruitment board. Candidates must verify all important details from the official website before applying.';
 ?>
 </div><!-- /.main-content -->
 
@@ -61,6 +63,16 @@ $site_url  = get_setting('site_url') ?: '#';
       </div>
     </div>
     <hr class="border-secondary mt-4">
+    <p class="text-center text-secondary small mb-2" style="max-width:900px;margin-inline:auto;">
+      <?= htmlspecialchars($footer_disclaimer) ?>
+    </p>
+    <ul class="list-inline small text-center text-secondary mb-2">
+      <li class="list-inline-item"><a href="/about-exam-duniya/" class="text-secondary text-decoration-none">About Exam Duniya</a></li>
+      <li class="list-inline-item"><a href="/editorial-policy/" class="text-secondary text-decoration-none">Editorial Policy</a></li>
+      <li class="list-inline-item"><a href="/fact-check-policy/" class="text-secondary text-decoration-none">Fact-Check Policy</a></li>
+      <li class="list-inline-item"><a href="/correction-policy/" class="text-secondary text-decoration-none">Correction Policy</a></li>
+      <li class="list-inline-item"><a href="/contact/" class="text-secondary text-decoration-none">Contact</a></li>
+    </ul>
     <p class="text-center text-secondary small mb-0">
       &copy; <?= date('Y') ?> <?= htmlspecialchars($site_name) ?>. All rights reserved.
     </p>

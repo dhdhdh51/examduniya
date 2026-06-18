@@ -39,7 +39,7 @@ $s = [
     'smtp_username'        => get_setting('smtp_username'),
     'smtp_password'        => get_setting('smtp_password'),
     'smtp_from_email'      => get_setting('smtp_from_email'),
-    'smtp_from_name'       => get_setting('smtp_from_name') ?: 'GovExam Portal',
+    'smtp_from_name'       => get_setting('smtp_from_name') ?: 'Exam Duniya',
     'smtp_enabled'         => get_setting('smtp_enabled'),
     // payu
     'payu_merchant_key'    => get_setting('payu_merchant_key'),
@@ -139,7 +139,7 @@ $csrf = csrf_token();
 
                 <div class="mb-3">
                   <label class="form-label">Site Name</label>
-                  <input type="text" class="form-control" name="site_name" value="<?= sanitize($s['site_name']) ?>" placeholder="GovExam Portal">
+                  <input type="text" class="form-control" name="site_name" value="<?= sanitize($s['site_name']) ?>" placeholder="Exam Duniya">
                 </div>
                 <div class="mb-3">
                   <label class="form-label">Site URL</label>
@@ -371,7 +371,7 @@ $csrf = csrf_token();
                   </div>
                   <div class="col-md-6 mb-3">
                     <label class="form-label">From Name</label>
-                    <input type="text" class="form-control" name="smtp_from_name" value="<?= sanitize($s['smtp_from_name']) ?>" placeholder="GovExam Portal">
+                    <input type="text" class="form-control" name="smtp_from_name" value="<?= sanitize($s['smtp_from_name']) ?>" placeholder="Exam Duniya">
                   </div>
                 </div>
 

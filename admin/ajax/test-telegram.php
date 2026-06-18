@@ -70,7 +70,7 @@ if (empty($me['ok'])) {
 $bot_username = $me['result']['username'] ?? '';
 
 // 2) Send the test message to every chat ID.
-$message    = 'Test message from GovExam Admin Panel — Telegram is connected!';
+$message    = 'Test message from Exam Duniya Admin Panel — Telegram is connected!';
 $sent_count = 0;
 $errors     = [];
 

@@ -389,7 +389,7 @@ function send_email($to, $subject, $html_body)
     $username   = get_setting('smtp_username');
     $password   = get_setting('smtp_password');
     $from_email = get_setting('smtp_from_email');
-    $from_name  = get_setting('smtp_from_name') ?: 'GovExam Portal';
+    $from_name  = get_setting('smtp_from_name') ?: 'Exam Duniya';
     $encryption = get_setting('smtp_encryption') ?: 'tls';
 
     if (empty($host) || empty($from_email)) {
@@ -818,4 +818,133 @@ function rate_limit_record($ip)
 function sanitize($str)
 {
     return htmlspecialchars((string)$str, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+}
+
+
+/* ============================================================
+   Clean-URL builders (Exam Duniya SEO upgrade — Part 5)
+   Internal links should use these so they point at the new
+   SEO-friendly URLs directly (no extra 301 hop).
+   ============================================================ */
+
+/** Clean URL for an exam/notification detail page: /exams/{slug}/ */
+function exam_url($slug)
+{
+    return '/exams/' . rawurlencode((string)$slug) . '/';
+}
+
+/** Clean URL for a blog post: /blog/{slug}/ */
+function blog_url($slug)
+{
+    return '/blog/' . rawurlencode((string)$slug) . '/';
+}
+
+/** Clean URL for a category landing page: /category/{slug}/ */
+function category_url($name)
+{
+    return '/category/' . rawurlencode((string)$name) . '/';
+}
+
+/** Clean URL for an author page: /author/{slug}/ */
+function author_url($slug)
+{
+    return '/author/' . rawurlencode((string)$slug) . '/';
+}
+
+/**
+ * Resolve the effective lifecycle status of a notification for display.
+ * Uses Asia/Kolkata "today". Prefers an admin-set computed_status, otherwise
+ * derives one from the date fields. Never mutates the DB — read-only helper.
+ *
+ * Returns one of: open, upcoming, closed, admit_card, exam_completed,
+ * result, awaited.
+ *
+ * @param array $n A notifications row.
+ * @return string
+ */
+function notification_lifecycle_status(array $n)
+{
+    if (!empty($n['computed_status'])) {
+        return $n['computed_status'];
+    }
+
+    $tz    = new DateTimeZone('Asia/Kolkata');
+    $today = (new DateTime('now', $tz))->setTime(0, 0, 0);
+
+    $toDate = function ($v) use ($tz) {
+        if (empty($v) || $v === '0000-00-00') return null;
+        try { return (new DateTime($v, $tz))->setTime(0, 0, 0); }
+        catch (Throwable $e) { return null; }
+    };
+
+    $lastApply = $toDate($n['application_last_date'] ?? $n['last_date_apply'] ?? null);
+    $examDate  = $toDate($n['exam_date'] ?? null);
+    $admitDate = $toDate($n['admit_card_date'] ?? null);
+    $resultDt  = $toDate($n['result_date'] ?? null);
+    $startDate = $toDate($n['application_start_date'] ?? null);
+
+    // Result available and reached -> Result.
+    if ($resultDt && $resultDt <= $today) {
+        return 'result';
+    }
+    // Exam date passed -> result awaited / exam completed.
+    if ($examDate && $examDate < $today) {
+        return $resultDt ? 'awaited' : 'exam_completed';
+    }
+    // Admit card window active.
+    if ($admitDate && $admitDate <= $today && (!$examDate || $examDate >= $today)) {
+        return 'admit_card';
+    }
+    // Application window.
+    if ($startDate && $startDate > $today) {
+        return 'upcoming';
+    }
+    if ($lastApply && $lastApply < $today) {
+        return 'closed';
+    }
+    return 'open';
+}
+
+/** Human label + bootstrap colour class for a lifecycle status. */
+function lifecycle_status_label($status)
+{
+    $map = [
+        'open'           => ['Open', 'success'],
+        'upcoming'       => ['Upcoming', 'info'],
+        'closed'         => ['Closed', 'secondary'],
+        'admit_card'     => ['Admit Card', 'primary'],
+        'exam_completed' => ['Exam Completed', 'dark'],
+        'awaited'        => ['Result Awaited', 'warning'],
+        'result'         => ['Result Out', 'danger'],
+    ];
+    return $map[$status] ?? [ucfirst($status), 'secondary'];
+}
+
+/**
+ * Record an entry in the activity_logs table (no-op if table missing).
+ *
+ * @param string      $action
+ * @param string|null $entityType
+ * @param int|null    $entityId
+ * @param string|null $details
+ */
+function log_activity($action, $entityType = null, $entityId = null, $details = null)
+{
+    global $pdo;
+    try {
+        $stmt = $pdo->prepare(
+            "INSERT INTO activity_logs (user_id, action, entity_type, entity_id, details, ip)
+             VALUES (?, ?, ?, ?, ?, ?)"
+        );
+        $stmt->execute([
+            $_SESSION['user_id'] ?? null,
+            $action,
+            $entityType,
+            $entityId,
+            $details,
+            $_SERVER['REMOTE_ADDR'] ?? null,
+        ]);
+    } catch (Throwable $e) {
+        // table may not exist yet — ignore.
+    }
 }

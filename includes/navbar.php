@@ -1,5 +1,5 @@
 <?php
-$site_name  = get_setting('site_name') ?: 'GovExam Portal';
+$site_name  = get_setting('site_name') ?: 'Exam Duniya';
 $site_logo  = get_setting('site_logo');
 $current    = $_SERVER['REQUEST_URI'] ?? '/';
 $is_logged  = !empty($_SESSION['user_id']);

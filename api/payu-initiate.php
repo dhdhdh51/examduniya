@@ -38,7 +38,7 @@ $payu_url = ($mode === 'live')
 
 $txnid       = 'TXN' . uniqid() . rand(1000, 9999);
 $amount      = number_format($amount_raw, 2, '.', '');
-$productinfo = ($test ? htmlspecialchars($test['title']) : 'GovExam Premium') . ' - ' . ucfirst($plan);
+$productinfo = ($test ? htmlspecialchars($test['title']) : 'Exam Duniya Premium') . ' - ' . ucfirst($plan);
 $firstname   = $_SESSION['name'] ?? 'User';
 $email       = $_SESSION['email'] ?? '';
 $phone       = '9999999999';

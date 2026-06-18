@@ -1,6 +1,6 @@
 <?php
 $current_uri = $_SERVER['REQUEST_URI'] ?? '/';
-$site_name   = get_setting('site_name') ?: 'GovExam Portal';
+$site_name   = get_setting('site_name') ?: 'Exam Duniya';
 $admin_name  = $_SESSION['name'] ?? 'Admin';
 $admin_avatar= $_SESSION['avatar'] ?? '';
 
@@ -170,6 +170,30 @@ function admin_nav_active($path, $current)
            href="/admin/categories/">
           <i class="fa-solid fa-tags me-2"></i>Exam Categories
         </a>
+      </li>
+
+      <!-- SEO & Content Quality -->
+      <li class="nav-item mt-1">
+        <button class="btn nav-link text-start w-100 d-flex align-items-center justify-content-between"
+                type="button" data-bs-toggle="collapse" data-bs-target="#collapseSeo"
+                aria-expanded="<?= (strpos($current_uri, '/admin/seo') !== false) ? 'true' : 'false' ?>">
+          <span><i class="fa-solid fa-magnifying-glass-chart me-2"></i>SEO &amp; Quality</span>
+          <i class="fa-solid fa-chevron-down small"></i>
+        </button>
+        <div class="collapse <?= (strpos($current_uri, '/admin/seo') !== false) ? 'show' : '' ?>" id="collapseSeo">
+          <ul class="nav flex-column ps-3">
+            <li class="nav-item">
+              <a class="nav-link <?= admin_nav_active('/admin/seo/index', $current_uri) ?>" href="/admin/seo/">
+                <i class="fa-solid fa-gauge-high me-2"></i>SEO Dashboard
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link <?= admin_nav_active('/admin/seo/corrections', $current_uri) ?>" href="/admin/seo/corrections.php">
+                <i class="fa-solid fa-flag me-2"></i>Reported Corrections
+              </a>
+            </li>
+          </ul>
+        </div>
       </li>
 
       <!-- AI Providers -->

@@ -7,8 +7,9 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 maintenance_mode_check();
-$site_name = get_setting('site_name') ?: 'GovExam Portal';
-$site_desc = get_setting('site_description') ?: 'Government Exam Notifications, Mock Tests & Study Material';
+require_once ROOT . '/includes/seo.php';
+$site_name = get_setting('site_name') ?: 'Exam Duniya';
+$site_desc = get_setting('site_description') ?: 'Get latest SSC, UPSC, Railway, Banking, Defence, UP Police and State Government job notifications, admit cards, results, syllabus, free mock tests and study material on Exam Duniya.';
 $ga_id     = get_setting('google_analytics_id');
 ?>
 <!DOCTYPE html>
@@ -16,15 +17,9 @@ $ga_id     = get_setting('google_analytics_id');
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title><?= htmlspecialchars(($page_title ?? 'Home') . ' — ' . $site_name) ?></title>
-<meta name="description" content="<?= htmlspecialchars($meta_desc ?? $site_desc) ?>">
-<meta name="robots" content="index,follow">
+<?php seo_render_head(); ?>
 <meta name="csrf-token" content="<?= csrf_token() ?>">
-
-<!-- Open Graph -->
-<meta property="og:title" content="<?= htmlspecialchars($page_title ?? $site_name) ?>">
-<meta property="og:description" content="<?= htmlspecialchars($meta_desc ?? $site_desc) ?>">
-<meta property="og:type" content="website">
+<?php if (!empty($GLOBALS['seo_head_extra'])) { echo $GLOBALS['seo_head_extra']; } ?>
 
 <!-- Preconnect for CDNs -->
 <link rel="preconnect" href="https://fonts.googleapis.com">

@@ -33,7 +33,7 @@ $port       = (int)(get_setting('smtp_port') ?: 587);
 $username   = get_setting('smtp_username');
 $password   = get_setting('smtp_password');
 $from_email = get_setting('smtp_from_email') ?: $username;
-$from_name  = get_setting('smtp_from_name') ?: 'GovExam Portal';
+$from_name  = get_setting('smtp_from_name') ?: 'Exam Duniya';
 $encryption = get_setting('smtp_encryption') ?: 'tls';
 
 if (empty($host)) {
@@ -46,7 +46,7 @@ if (empty($from_email)) {
 }
 
 $now     = date('Y-m-d H:i:s');
-$subject = 'SMTP Test — GovExam Portal';
+$subject = 'SMTP Test — Exam Duniya';
 $body    = '<p>Your SMTP is configured correctly. Sent at ' . htmlspecialchars($now) . '</p>';
 
 $mail = new PHPMailer(true);

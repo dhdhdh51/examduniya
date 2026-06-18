@@ -28,7 +28,7 @@ try {
         $results[] = [
             'type'    => 'notification',
             'title'   => $row['title'],
-            'url'     => '/pages/exams/detail.php?slug=' . rawurlencode($row['slug']),
+            'url'     => exam_url($row['slug']),
             'excerpt' => excerpt($row['short_desc'] ?? '', 80),
             'badge'   => $row['category'],
         ];
@@ -45,7 +45,7 @@ try {
         $results[] = [
             'type'    => 'blog',
             'title'   => $row['title'],
-            'url'     => '/pages/blog/detail.php?slug=' . rawurlencode($row['slug']),
+            'url'     => blog_url($row['slug']),
             'excerpt' => '',
             'badge'   => $row['category'],
         ];

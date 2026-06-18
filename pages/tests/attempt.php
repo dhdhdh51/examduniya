@@ -49,7 +49,7 @@ if ($existing_attempt && !empty($existing_attempt['answers_json'])) {
     $saved_answers = json_decode($existing_attempt['answers_json'], true) ?: [];
 }
 
-$site_name = get_setting('site_name') ?: 'GovExam Portal';
+$site_name = get_setting('site_name') ?: 'Exam Duniya';
 
 // Show payment success message if coming from payment
 $payment_success = '';
@@ -63,6 +63,7 @@ if (!empty($_SESSION['payment_success'])) {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,follow">
 <title><?= htmlspecialchars($test['title']) ?> &mdash; <?= htmlspecialchars($site_name) ?></title>
 <meta name="csrf-token" content="<?= csrf_token() ?>">
 

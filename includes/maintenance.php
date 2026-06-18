@@ -1,7 +1,7 @@
 <?php
 http_response_code(503);
 header('Retry-After: 3600');
-$site_name = function_exists('get_setting') ? (get_setting('site_name') ?: 'GovExam Portal') : 'GovExam Portal';
+$site_name = function_exists('get_setting') ? (get_setting('site_name') ?: 'Exam Duniya') : 'Exam Duniya';
 ?>
 <!DOCTYPE html>
 <html lang="en">

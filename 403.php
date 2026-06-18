@@ -1,6 +1,6 @@
 <?php
 http_response_code(403);
-$site_name = (function_exists('get_setting') ? get_setting('site_name') : null) ?: 'GovExam Portal';
+$site_name = (function_exists('get_setting') ? get_setting('site_name') : null) ?: 'Exam Duniya';
 ?>
 <!DOCTYPE html>
 <html lang="en">
