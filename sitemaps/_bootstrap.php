@@ -16,6 +16,27 @@ $base = rtrim((get_setting('canonical_domain') ?: get_setting('site_url')) ?: 'h
 $e = fn($v) => htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8');
 
 /**
+ * Run the first query that succeeds. Lets sub-sitemaps reference optional
+ * SEO columns when present and fall back gracefully when they are missing
+ * (e.g. before the SEO migration has been applied to the live database).
+ *
+ * @param array $sqls Ordered list of SQL strings (most-featured first)
+ * @return PDOStatement|null
+ */
+function sm_query($sqls)
+{
+    global $pdo;
+    foreach ($sqls as $sql) {
+        try {
+            return $pdo->query($sql);
+        } catch (Throwable $e) {
+            continue;
+        }
+    }
+    return null;
+}
+
+/**
  * Emit one <url> entry with optional image support.
  *
  * @param string      $loc        Full URL
