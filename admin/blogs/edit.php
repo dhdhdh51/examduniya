@@ -66,6 +66,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $category, $tags, $is_published, $published_at, $id
         ]);
 
+        // Auto-regenerate sitemap
+        require_once ROOT . '/includes/sitemap-generator.php';
+        generate_sitemap($pdo);
+
         header('Location: /admin/blogs/list.php?success=1');
         exit;
     }

@@ -1,66 +1,28 @@
 <?php
+/**
+ * Sitemap endpoint — serves the pre-generated sitemap.xml file.
+ * If the static file doesn't exist or is stale (>60 min), regenerates it.
+ * The .htaccess rewrites /sitemap.xml to this file.
+ */
 define('ROOT', __DIR__);
 require_once ROOT . '/config/db.php';
 require_once ROOT . '/includes/functions.php';
+require_once ROOT . '/includes/sitemap-generator.php';
 
 header('Content-Type: application/xml; charset=utf-8');
+header('X-Robots-Tag: noindex');
 
-$site_url = rtrim(get_setting('site_url') ?: 'https://example.com', '/');
-echo '<?xml version="1.0" encoding="UTF-8"?>' . PHP_EOL;
-?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc><?= htmlspecialchars($site_url) ?>/</loc>
-    <changefreq>daily</changefreq>
-    <priority>1.0</priority>
-  </url>
-  <url>
-    <loc><?= htmlspecialchars($site_url) ?>/pages/exams/listing.php</loc>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc><?= htmlspecialchars($site_url) ?>/pages/tests/listing.php</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc><?= htmlspecialchars($site_url) ?>/pages/blog/listing.php</loc>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
-  </url>
-<?php
-try {
-    $stmt = $pdo->query("SELECT slug, created_at FROM notifications ORDER BY created_at DESC");
-    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)):
-?>
-  <url>
-    <loc><?= htmlspecialchars($site_url . '/notification/' . $row['slug']) ?></loc>
-    <lastmod><?= htmlspecialchars(date('Y-m-d', strtotime($row['created_at']))) ?></lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-<?php
-    endwhile;
-} catch (Exception $e) {
-    // silently skip if table doesn't exist yet
+$sitemap_path = ROOT . '/sitemap.xml';
+
+// Serve static file if fresh, otherwise regenerate
+regenerate_sitemap_if_stale($pdo, 60);
+
+if (file_exists($sitemap_path)) {
+    readfile($sitemap_path);
+} else {
+    // Fallback: generate and output directly
+    generate_sitemap($pdo);
+    if (file_exists($sitemap_path)) {
+        readfile($sitemap_path);
+    }
 }
-?>
-<?php
-try {
-    $stmt = $pdo->query("SELECT slug, created_at FROM blogs WHERE is_published = 1 ORDER BY created_at DESC");
-    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)):
-?>
-  <url>
-    <loc><?= htmlspecialchars($site_url . '/blog/' . $row['slug']) ?></loc>
-    <lastmod><?= htmlspecialchars(date('Y-m-d', strtotime($row['created_at']))) ?></lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-<?php
-    endwhile;
-} catch (Exception $e) {
-    // silently skip
-}
-?>
-</urlset>
