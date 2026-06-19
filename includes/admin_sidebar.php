@@ -205,6 +205,11 @@ function admin_nav_active($path, $current)
               </a>
             </li>
             <li class="nav-item">
+              <a class="nav-link <?= admin_nav_active('/admin/seo/sitemap', $current_uri) ?>" href="/admin/seo/sitemap.php">
+                <i class="fa-solid fa-sitemap me-2"></i>Sitemap Manager
+              </a>
+            </li>
+            <li class="nav-item">
               <a class="nav-link <?= admin_nav_active('/admin/seo/corrections', $current_uri) ?>" href="/admin/seo/corrections.php">
                 <i class="fa-solid fa-flag me-2"></i>Reported Corrections
               </a>

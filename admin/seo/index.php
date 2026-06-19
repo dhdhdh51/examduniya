@@ -134,6 +134,7 @@ $badge = function ($v) {
   <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
     <h2 class="mb-0"><i class="fas fa-magnifying-glass-chart me-2"></i>SEO &amp; Content Quality</h2>
     <div class="d-flex gap-2">
+      <a href="/admin/seo/sitemap.php" class="btn btn-sm btn-primary"><i class="fas fa-sitemap me-1"></i>Sitemap Manager</a>
       <a href="/sitemap.xml" target="_blank" class="btn btn-sm btn-outline-primary"><i class="fas fa-sitemap me-1"></i>View Sitemap</a>
       <a href="/robots.txt" target="_blank" class="btn btn-sm btn-outline-primary"><i class="fas fa-robot me-1"></i>robots.txt</a>
     </div>
