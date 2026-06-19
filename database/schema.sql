@@ -248,6 +248,19 @@ INSERT INTO exam_categories (name, sort_order) VALUES
 ON DUPLICATE KEY UPDATE name = VALUES(name);
 
 -- ---------------------------------------------------------------------
+-- SYLLABI (admin-managed exam -> subject -> topics for the AI generator)
+-- ---------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS syllabi (
+    id         INT AUTO_INCREMENT PRIMARY KEY,
+    exam_name  VARCHAR(100) NOT NULL,
+    subject    VARCHAR(150) NOT NULL,
+    topics     TEXT,
+    sort_order INT NOT NULL DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    KEY idx_syllabi_exam (exam_name)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ---------------------------------------------------------------------
 -- AI PROVIDERS
 -- ---------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS ai_providers (

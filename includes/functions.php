@@ -948,3 +948,36 @@ function log_activity($action, $entityType = null, $entityId = null, $details = 
         // table may not exist yet — ignore.
     }
 }
+
+/**
+ * Merge the built-in exam syllabi (includes/exam_syllabi.php) with any
+ * admin-added rows from the `syllabi` table.
+ * Returns: ['Exam Name' => ['Subject' => ['Topic', ...], ...], ...]
+ */
+function get_all_syllabi()
+{
+    global $pdo;
+    $EXAM_SYLLABI = [];
+    $file = ROOT . '/includes/exam_syllabi.php';
+    if (is_file($file)) { include $file; } // populates $EXAM_SYLLABI
+    $merged = is_array($EXAM_SYLLABI) ? $EXAM_SYLLABI : [];
+
+    try {
+        $rows = $pdo->query("SELECT exam_name, subject, topics FROM syllabi ORDER BY sort_order, id")
+                    ->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($rows as $r) {
+            $exam = trim($r['exam_name']);
+            $subj = trim($r['subject']);
+            if ($exam === '' || $subj === '') continue;
+            $topics = array_values(array_filter(array_map('trim',
+                      preg_split('/[\r\n,]+/', (string)$r['topics']))));
+            if (!isset($merged[$exam]))        $merged[$exam] = [];
+            if (!isset($merged[$exam][$subj])) $merged[$exam][$subj] = [];
+            $merged[$exam][$subj] = array_values(array_unique(
+                array_merge($merged[$exam][$subj], $topics)));
+        }
+    } catch (Throwable $e) {
+        // syllabi table may not exist yet — fall back to built-in only.
+    }
+    return $merged;
+}

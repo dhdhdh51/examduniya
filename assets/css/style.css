@@ -1977,3 +1977,22 @@ img {
   .btn { min-height: 42px; }
   .form-control, .form-select { min-height: 44px; }
 }
+
+/* =====================================================================
+   Sidebar scroll fix — bound the fixed sidebar to the viewport height so
+   the nav area (.admin-nav) scrolls instead of overflowing off-screen.
+   ===================================================================== */
+.admin-sidebar {
+  height: 100vh;
+  max-height: 100vh;
+  overflow: hidden;            /* only the inner nav scrolls */
+}
+.admin-sidebar .admin-nav {
+  min-height: 0;               /* allow the flex child to shrink & scroll */
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+/* Slim scrollbar inside the dark sidebar */
+.admin-sidebar .admin-nav::-webkit-scrollbar { width: 7px; }
+.admin-sidebar .admin-nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,.25); border-radius: 4px; }
+.admin-sidebar .admin-nav::-webkit-scrollbar-track { background: transparent; }

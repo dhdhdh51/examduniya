@@ -111,6 +111,18 @@ function admin_nav_active($path, $current)
                 <i class="fa-solid fa-plus me-2"></i>Add Test
               </a>
             </li>
+            <li class="nav-item">
+              <a class="nav-link <?= admin_nav_active('/admin/tests/generate', $current_uri) ?>"
+                 href="/admin/tests/generate.php">
+                <i class="fa-solid fa-robot me-2"></i>AI Generator
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link <?= admin_nav_active('/admin/tests/syllabus', $current_uri) ?>"
+                 href="/admin/tests/syllabus.php">
+                <i class="fa-solid fa-book-open me-2"></i>Syllabus
+              </a>
+            </li>
           </ul>
         </div>
       </li>
