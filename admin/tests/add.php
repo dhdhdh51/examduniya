@@ -64,6 +64,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $created_by ?: null
         ]);
 
+        // Auto-regenerate sitemap
+        require_once ROOT . '/includes/sitemap-generator.php';
+        generate_sitemap($pdo);
+
         header('Location: /admin/tests/list.php?success=1');
         exit;
     }

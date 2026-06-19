@@ -105,7 +105,7 @@ require_once ROOT . '/includes/navbar.php';
                     <?php if ($blog['author_name']): ?>
                         <div class="d-flex align-items-center gap-2">
                             <?php if ($blog['author_avatar']): ?>
-                                <img src="/uploads/avatars/<?= htmlspecialchars($blog['author_avatar']) ?>"
+                                <img src="<?= htmlspecialchars(get_avatar_url($blog['author_avatar'])) ?>"
                                      class="rounded-circle" width="28" height="28" alt="author">
                             <?php else: ?>
                                 <i class="fa-solid fa-circle-user fa-lg"></i>
@@ -215,7 +215,7 @@ require_once ROOT . '/includes/navbar.php';
                             <div class="d-flex gap-3">
                                 <div class="flex-shrink-0">
                                     <?php if ($comment['avatar']): ?>
-                                        <img src="/uploads/avatars/<?= htmlspecialchars($comment['avatar']) ?>"
+                                        <img src="<?= htmlspecialchars(get_avatar_url($comment['avatar'])) ?>"
                                              class="rounded-circle" width="40" height="40" alt="avatar">
                                     <?php else: ?>
                                         <div class="rounded-circle bg-primary-light d-flex align-items-center justify-content-center"

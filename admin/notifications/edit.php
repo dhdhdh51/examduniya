@@ -87,6 +87,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $pdo->prepare("UPDATE notifications SET telegram_sent = 1 WHERE id = ?")->execute([$id]);
         }
 
+        // Auto-regenerate sitemap
+        require_once ROOT . '/includes/sitemap-generator.php';
+        generate_sitemap($pdo);
+
         header('Location: /admin/notifications/list.php?success=1');
         exit;
     }

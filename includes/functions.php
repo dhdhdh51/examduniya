@@ -24,6 +24,26 @@ function asset($path)
 }
 
 /**
+ * Get the proper avatar URL — handles both Google OAuth full URLs
+ * and locally uploaded filenames.
+ *
+ * @param string|null $avatar The avatar value from DB/session
+ * @return string The correct src URL for the avatar image
+ */
+function get_avatar_url($avatar)
+{
+    if (empty($avatar)) {
+        return '';
+    }
+    // Google OAuth stores full URL (https://lh3.googleusercontent.com/...)
+    if (str_starts_with($avatar, 'http://') || str_starts_with($avatar, 'https://')) {
+        return $avatar;
+    }
+    // Local upload — prepend path
+    return '/uploads/avatars/' . $avatar;
+}
+
+/**
  * Retrieve a setting value from the settings table with static cache
  *
  * @param string $key Setting key
