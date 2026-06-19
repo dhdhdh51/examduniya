@@ -23,5 +23,9 @@ if (!$id) {
 $stmt = $pdo->prepare("DELETE FROM mock_tests WHERE id = ?");
 $stmt->execute([$id]);
 
+// Auto-notify search engines about sitemap update
+require_once ROOT . '/includes/sitemap-generator.php';
+sitemap_notify($pdo);
+
 header('Location: /admin/tests/list.php?deleted=1');
 exit;

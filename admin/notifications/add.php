@@ -82,6 +82,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             send_telegram($tg);
             $pdo->prepare("UPDATE notifications SET telegram_sent = 1 WHERE id = ?")->execute([$new_id]);
         }
+        // Auto-notify search engines about sitemap update
+        require_once ROOT . '/includes/sitemap-generator.php';
+        sitemap_notify($pdo);
+
         header('Location: /admin/notifications/list.php?success=1'); exit;
     }
 

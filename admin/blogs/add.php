@@ -75,6 +75,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         if (function_exists('log_activity')) log_activity('blog_create', 'blogs', (int)$pdo->lastInsertId(), $title);
 
+        // Auto-notify search engines about sitemap update
+        require_once ROOT . '/includes/sitemap-generator.php';
+        sitemap_notify($pdo);
+
         header('Location: /admin/blogs/list.php?success=1');
         exit;
     }

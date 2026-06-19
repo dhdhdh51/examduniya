@@ -92,7 +92,11 @@ schema_emit([
 
   <div class="d-flex align-items-center gap-3 mb-4">
     <?php if ($avatar): ?>
-      <img src="/uploads/avatars/<?= htmlspecialchars($avatar) ?>" class="rounded-circle" width="72" height="72" alt="<?= htmlspecialchars($display_name) ?>">
+      <img src="<?= htmlspecialchars(get_avatar_url($avatar)) ?>" class="rounded-circle" width="72" height="72" alt="<?= htmlspecialchars($display_name) ?>"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center" style="width:72px;height:72px;display:none;">
+        <i class="fa-solid fa-user text-white fa-2x"></i>
+      </div>
     <?php else: ?>
       <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center" style="width:72px;height:72px;">
         <i class="fa-solid fa-user text-white fa-2x"></i>

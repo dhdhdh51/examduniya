@@ -83,6 +83,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $neg_marking, $access_type, json_encode($questions), $is_active, $id
         ]);
 
+        // Auto-notify search engines about sitemap update
+        require_once ROOT . '/includes/sitemap-generator.php';
+        sitemap_notify($pdo);
+
         header('Location: /admin/tests/list.php?success=1');
         exit;
     }

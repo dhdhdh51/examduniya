@@ -72,8 +72,10 @@ $user_avatar= $is_logged ? ($_SESSION['avatar'] ?? '') : '';
             <button class="btn btn-sm btn-outline-primary dropdown-toggle d-flex align-items-center gap-2"
                     data-bs-toggle="dropdown">
               <?php if ($user_avatar): ?>
-                <img src="/uploads/avatars/<?= htmlspecialchars($user_avatar) ?>"
-                     class="rounded-circle" width="24" height="24" alt="avatar">
+                <img src="<?= htmlspecialchars(get_avatar_url($user_avatar)) ?>"
+                     class="rounded-circle" width="24" height="24" alt="avatar"
+                     onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
+                <i class="fa-solid fa-circle-user" style="display:none"></i>
               <?php else: ?>
                 <i class="fa-solid fa-circle-user"></i>
               <?php endif; ?>
