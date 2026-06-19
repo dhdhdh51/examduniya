@@ -119,15 +119,36 @@ require_once ROOT . '/includes/admin_sidebar.php';
                 <option value="Hindi">Hindi</option>
               </select>
             </div>
-            <div class="mb-3 p-2 rounded bg-light border">
-              <div class="form-check form-switch mb-1">
-                <input class="form-check-input" type="checkbox" id="full-paper">
-                <label class="form-check-label fw-semibold" for="full-paper">Generate full paper from syllabus</label>
-              </div>
-              <div class="form-text mb-2">Generates questions for <em>every subject</em> of the selected exam and auto-assigns each question to its subject.</div>
-              <label class="form-label small mb-1">Questions per subject</label>
+            <!-- Generation mode -->
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Generation Mode</label>
+              <select id="gen-mode" class="form-select">
+                <option value="single">Single Topic (current subject)</option>
+                <option value="subject">By Subject (select from syllabus)</option>
+                <option value="full">Full Paper (all subjects)</option>
+              </select>
+            </div>
+
+            <!-- Single mode: uses topic + subject fields above -->
+
+            <!-- Subject mode: pick one subject from exam syllabus -->
+            <div id="mode-subject-wrap" class="mb-3 p-2 rounded bg-light border" style="display:none;">
+              <label class="form-label small fw-semibold">Select Subject from Syllabus</label>
+              <select id="subject-pick" class="form-select mb-2">
+                <option value="">-- select exam first --</option>
+              </select>
+              <div class="form-text">Only subjects of the selected exam are shown. Questions will be generated from that subject's topics only.</div>
+              <label class="form-label small mt-2">Number of Questions</label>
+              <input type="number" id="subject-num" class="form-control form-control-sm" value="10" min="1" max="30">
+            </div>
+
+            <!-- Full paper mode -->
+            <div id="mode-full-wrap" class="mb-3 p-2 rounded bg-light border" style="display:none;">
+              <div class="form-text mb-2">Generates questions for <em>every subject</em> of the selected exam and auto-assigns each to its subject.</div>
+              <label class="form-label small">Questions per subject</label>
               <input type="number" id="per-subject" class="form-control form-control-sm" value="5" min="1" max="20">
             </div>
+
             <button type="button" id="generate-btn" class="btn btn-success w-100">
               <i class="fas fa-wand-magic-sparkles me-1"></i>Generate with AI
             </button>
@@ -292,11 +313,47 @@ var examSyllabi = ' . $syllabi_json . ';
     }
 })();
 
-document.getElementById("generate-btn").addEventListener("click", function() {
-    if (document.getElementById("full-paper") && document.getElementById("full-paper").checked) {
-        generateFullPaper();
-        return;
+function resolveExamData(exam) {
+    var data = examSyllabi[exam];
+    if (!data) {
+        for (var key in examSyllabi) {
+            if (exam.toLowerCase().indexOf(key.toLowerCase()) !== -1 || key.toLowerCase().indexOf(exam.toLowerCase()) !== -1) { data = examSyllabi[key]; break; }
+        }
     }
+    return data;
+}
+
+// Mode switch UI
+(function(){
+  var mode = document.getElementById("gen-mode");
+  var subjWrap = document.getElementById("mode-subject-wrap");
+  var fullWrap = document.getElementById("mode-full-wrap");
+  mode.addEventListener("change", function(){
+    subjWrap.style.display = this.value === "subject" ? "block" : "none";
+    fullWrap.style.display = this.value === "full" ? "block" : "none";
+  });
+})();
+
+// Populate subject-pick dropdown when exam changes (only THAT exam subjects)
+(function(){
+  var examInput = document.getElementById("exam-type");
+  var pick = document.getElementById("subject-pick");
+  function fillSubjectPick(){
+    pick.innerHTML = "";
+    var data = resolveExamData((examInput ? examInput.value.trim() : ""));
+    if (!data) { pick.innerHTML = "<option value=\"\">-- no syllabus for this exam --</option>"; return; }
+    for (var subj in data) {
+      var o = document.createElement("option"); o.value = subj; o.textContent = subj;
+      pick.appendChild(o);
+    }
+  }
+  if (examInput) { examInput.addEventListener("change", fillSubjectPick); examInput.addEventListener("input", fillSubjectPick); fillSubjectPick(); }
+})();
+
+document.getElementById("generate-btn").addEventListener("click", function() {
+    var mode = document.getElementById("gen-mode").value;
+    if (mode === "full") { generateFullPaper(); return; }
+    if (mode === "subject") { generateBySubject(); return; }
     var examType = document.getElementById("exam-type").value;
     var topic = document.getElementById("topic").value.trim();
     var subject = document.getElementById("subject").value.trim();
@@ -432,15 +489,56 @@ document.getElementById("save-to-test-btn").addEventListener("click", function()
     });
 });
 
-function resolveExamData(exam) {
-    var data = examSyllabi[exam];
-    if (!data) {
-        for (var key in examSyllabi) {
-            if (exam.toLowerCase().indexOf(key.toLowerCase()) !== -1 || key.toLowerCase().indexOf(exam.toLowerCase()) !== -1) { data = examSyllabi[key]; break; }
+function generateBySubject() {
+    var examType = document.getElementById("exam-type").value.trim();
+    var pick = document.getElementById("subject-pick");
+    var subj = pick ? pick.value : "";
+    var numQ = parseInt(document.getElementById("subject-num").value, 10) || 10;
+    var difficulty = document.getElementById("difficulty").value;
+    var language = document.getElementById("language").value;
+    var providerEl = document.getElementById("ai-provider");
+    var provider = providerEl ? providerEl.value : "";
+    var targetTest = document.getElementById("target-test").value;
+
+    if (!subj) { alert("Please select a subject from the dropdown."); return; }
+    var data = resolveExamData(examType);
+    var topics = (data && data[subj]) ? data[subj] : [];
+    var topicHint = topics.length ? topics.slice(0, 10).join(", ") : subj;
+
+    document.getElementById("generate-status").style.display = "block";
+    document.getElementById("generate-spinner").style.display = "inline-block";
+    document.getElementById("generate-status-msg").textContent = "Generating " + numQ + " questions for " + subj + "...";
+    document.getElementById("questions-result").style.display = "none";
+    document.getElementById("generate-error").style.display = "none";
+    generatedQuestions = [];
+
+    var body = new URLSearchParams({
+        csrf_token: csrfToken, provider: provider, exam_type: examType,
+        topic: topicHint, subject: subj, target_test_id: targetTest || "",
+        num_questions: numQ, difficulty: difficulty, language: language
+    });
+    fetch("/admin/ajax/generate-questions.php", { method:"POST", headers:{"Content-Type":"application/x-www-form-urlencoded"}, body: body.toString() })
+      .then(function(r){ return r.json(); })
+      .then(function(res){
+        document.getElementById("generate-status").style.display = "none";
+        if (!res.success) {
+            document.getElementById("generate-error").style.display = "block";
+            document.getElementById("generate-error").textContent = "Error: " + (res.error || "Unknown");
+            return;
         }
-    }
-    return data;
+        res.questions.forEach(function(q){ if (!q.subject) { q.subject = subj; } });
+        generatedQuestions = res.questions;
+        renderQuestions(generatedQuestions);
+        document.getElementById("questions-result").style.display = "block";
+        document.getElementById("result-count").textContent = generatedQuestions.length;
+      })
+      .catch(function(e){
+        document.getElementById("generate-status").style.display = "none";
+        document.getElementById("generate-error").style.display = "block";
+        document.getElementById("generate-error").textContent = "Request failed: " + e.message;
+      });
 }
+
 function generateFullPaper() {
     var examType = document.getElementById("exam-type").value.trim();
     var perSubject = parseInt(document.getElementById("per-subject").value, 10) || 5;
