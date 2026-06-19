@@ -1,6 +1,7 @@
 <?php
 $site_name = get_setting('site_name') ?: 'Exam Duniya';
 $site_url  = get_setting('site_url') ?: '#';
+$site_logo = get_setting('site_logo');
 $footer_disclaimer = get_setting('footer_disclaimer')
     ?: 'Exam Duniya is an independent education and exam information platform. We are not affiliated with any government recruitment board. Candidates must verify all important details from the official website before applying.';
 ?>
@@ -11,8 +12,11 @@ $footer_disclaimer = get_setting('footer_disclaimer')
     <div class="row g-4">
       <div class="col-lg-4 col-md-6">
         <h5 class="fw-bold mb-3">
-          <i class="fa-solid fa-graduation-cap text-primary me-2"></i>
-          <?= htmlspecialchars($site_name) ?>
+          <?php if (!empty($site_logo)): ?>
+            <img src="/uploads/site/<?= htmlspecialchars($site_logo) ?>" alt="<?= htmlspecialchars($site_name) ?>" class="footer-logo">
+          <?php else: ?>
+            <i class="fa-solid fa-graduation-cap text-primary me-2"></i><?= htmlspecialchars($site_name) ?>
+          <?php endif; ?>
         </h5>
         <p class="text-secondary small">
           Your trusted destination for Government exam notifications, free mock tests,

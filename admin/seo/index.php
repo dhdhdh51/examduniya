@@ -143,7 +143,7 @@ $badge = function ($v) {
     <div class="alert alert-warning">
       <i class="fas fa-triangle-exclamation me-2"></i>
       Some SEO columns are not present yet. Import
-      <code>database/migration_seo_upgrade.sql</code> to enable all checks.
+      <code>database/schema.sql</code> to enable all checks.
     </div>
   <?php endif; ?>
 

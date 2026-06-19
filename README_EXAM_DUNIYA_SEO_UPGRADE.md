@@ -15,7 +15,7 @@ functionality or data.
 ### New files
 | File | Purpose |
 |------|---------|
-| `database/migration_seo_upgrade.sql` | Idempotent, additive DB migration (new columns + `redirects`, `activity_logs`, `corrections` tables + branding settings). |
+| `database/schema.sql` | Idempotent, additive DB migration (new columns + `redirects`, `activity_logs`, `corrections` tables + branding settings). |
 | `includes/seo.php` | Central SEO engine — title, description, canonical, robots, Open Graph, Twitter Card. |
 | `includes/schema.php` | JSON-LD schema helpers (Organization, WebSite, Breadcrumb, Article/BlogPosting, CollectionPage, FAQ). |
 | `robots.txt` | Crawl rules + sitemap references. |
@@ -57,11 +57,11 @@ No file permissions beyond the usual (644 files / 755 dirs) are required.
 Run **once** (it is safe to re-run — every change is guarded):
 
 **phpMyAdmin:** select your database -> *Import* -> choose
-`database/migration_seo_upgrade.sql` -> *Go*.
+`database/schema.sql` -> *Go*.
 
 **CLI:**
 ```bash
-mysql -u DB_USER -p DB_NAME < database/migration_seo_upgrade.sql
+mysql -u DB_USER -p DB_NAME < database/schema.sql
 ```
 
 This adds the new notification fields (`application_last_date`, `result_date`,
@@ -189,3 +189,29 @@ There is no server-side page cache. If a browser/CDN shows stale content:
 - Set **Site Name** and **Canonical Domain** under *Admin -> Settings* if you ever
   need to change them — branding is read from settings first, with `Exam Duniya`
   only as a fallback.
+
+---
+
+## 13. Additional admin features (latest batch)
+
+- **Single database file:** everything is now in `database/schema.sql` (fresh
+  install + idempotent upgrade in one). The old `ai_providers.sql`,
+  `migration_flexible_categories.sql` and `migration_seo_upgrade.sql` were merged
+  in and removed. Import just this one file.
+- **Blog editor:** HTML-supported editor with a formatting toolbar, live Preview
+  tab, and a **Write with AI** button (`admin/ajax/generate-blog.php`, uses the
+  configured AI provider). SEO title/meta description are now saved, and the Save
+  button sits in a sticky top bar.
+- **Notification add/edit:** full SEO + freshness fields (post type, organization,
+  application/exam/admit-card/result dates, official website/apply/PDF links,
+  Last Verified, featured image, SEO title/meta) with an HTML content editor,
+  Google preview, and validation (category/organization/official-source required;
+  expired deadlines can't be shown as "Latest"; category-mismatch warnings).
+- **Tests add/edit:** Save button moved to a sticky top bar.
+- **Redirect Manager** (`admin/seo/redirects.php`): add/manage 301/302 redirects;
+  applied automatically by the 404 handler with loop protection.
+- **Broken-Link Checker** (`admin/seo/broken-links.php`): lists notifications
+  missing official source/image/category and verifies external official links
+  via cURL.
+- **Logo/UI polish:** responsive non-stretched logo (`.site-logo`), blog/article
+  `.prose` typography with responsive tables, larger mobile tap targets.

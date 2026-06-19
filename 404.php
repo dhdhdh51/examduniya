@@ -11,6 +11,31 @@ if (!function_exists('get_setting')) {
     @require_once ROOT . '/includes/functions.php';
 }
 
+// --- Apply admin-managed redirects (Redirect Manager) before showing 404 ---
+if (isset($pdo)) {
+    $req_path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
+    $req_full = $_SERVER['REQUEST_URI'] ?? $req_path;
+    try {
+        $rs = $pdo->prepare(
+            "SELECT id, to_path, status_code FROM redirects
+              WHERE is_active = 1 AND (from_path = ? OR from_path = ?)
+              ORDER BY (from_path = ?) DESC LIMIT 1"
+        );
+        $rs->execute([$req_full, $req_path, $req_full]);
+        if ($rd = $rs->fetch(PDO::FETCH_ASSOC)) {
+            $dest = $rd['to_path'];
+            // Guard against redirecting a path to itself (loop).
+            if ($dest !== '' && rtrim($dest, '/') !== rtrim($req_path, '/')) {
+                @$pdo->prepare("UPDATE redirects SET hits = hits + 1, last_hit_at = NOW() WHERE id = ?")
+                     ->execute([$rd['id']]);
+                http_response_code((int)$rd['status_code'] ?: 301);
+                header('Location: ' . $dest, true, (int)$rd['status_code'] ?: 301);
+                exit;
+            }
+        }
+    } catch (Throwable $e) { /* table may be missing */ }
+}
+
 $site_name = (function_exists('get_setting') ? get_setting('site_name') : null) ?: 'Exam Duniya';
 
 $latest = [];

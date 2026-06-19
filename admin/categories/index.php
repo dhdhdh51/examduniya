@@ -112,7 +112,7 @@ $csrf = csrf_token();
     <div class="alert alert-warning">
       <i class="fas fa-triangle-exclamation me-2"></i>
       The <code>exam_categories</code> table was not found. Import
-      <code>database/migration_flexible_categories.sql</code> into your database, then reload this page.
+      <code>database/schema.sql</code> into your database, then reload this page.
     </div>
   <?php else: ?>
 

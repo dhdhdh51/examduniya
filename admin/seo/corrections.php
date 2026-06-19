@@ -47,7 +47,7 @@ require_once ROOT . '/includes/admin_sidebar.php';
   <?php if (!$has_table): ?>
     <div class="alert alert-warning">
       The <code>corrections</code> table does not exist yet. Import
-      <code>database/migration_seo_upgrade.sql</code> to enable this feature.
+      <code>database/schema.sql</code> to enable this feature.
     </div>
   <?php else: ?>
     <div class="card shadow-sm border-0">

@@ -192,6 +192,16 @@ function admin_nav_active($path, $current)
                 <i class="fa-solid fa-flag me-2"></i>Reported Corrections
               </a>
             </li>
+            <li class="nav-item">
+              <a class="nav-link <?= admin_nav_active('/admin/seo/redirects', $current_uri) ?>" href="/admin/seo/redirects.php">
+                <i class="fa-solid fa-route me-2"></i>Redirect Manager
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link <?= admin_nav_active('/admin/seo/broken-links', $current_uri) ?>" href="/admin/seo/broken-links.php">
+                <i class="fa-solid fa-link-slash me-2"></i>Broken Links
+              </a>
+            </li>
           </ul>
         </div>
       </li>

@@ -12,7 +12,7 @@ $user_avatar= $is_logged ? ($_SESSION['avatar'] ?? '') : '';
     <!-- Brand / Logo -->
     <a class="navbar-brand fw-bold text-primary d-flex align-items-center gap-2" href="/">
       <?php if (!empty($site_logo)): ?>
-        <img src="/uploads/site/<?= htmlspecialchars($site_logo) ?>" alt="<?= htmlspecialchars($site_name) ?>" style="height:40px;width:auto;max-width:200px;">
+        <img src="/uploads/site/<?= htmlspecialchars($site_logo) ?>" alt="<?= htmlspecialchars($site_name) ?>" class="site-logo">
       <?php else: ?>
         <i class="fa-solid fa-graduation-cap fs-4"></i>
         <span><?= htmlspecialchars($site_name) ?></span>
