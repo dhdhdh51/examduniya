@@ -34,8 +34,13 @@ function admin_nav_active($path, $current)
   <div class="px-3 py-3 border-bottom border-secondary">
     <div class="d-flex align-items-center gap-2">
       <?php if ($admin_avatar): ?>
-        <img src="/uploads/avatars/<?= htmlspecialchars($admin_avatar) ?>"
-             class="rounded-circle" width="36" height="36" alt="avatar">
+        <img src="<?= htmlspecialchars(get_avatar_url($admin_avatar)) ?>"
+             class="rounded-circle" width="36" height="36" alt="avatar"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
+        <div class="admin-avatar-placeholder rounded-circle bg-primary d-flex align-items-center justify-content-center"
+             style="width:36px;height:36px;display:none;">
+          <i class="fa-solid fa-user text-white small"></i>
+        </div>
       <?php else: ?>
         <div class="admin-avatar-placeholder rounded-circle bg-primary d-flex align-items-center justify-content-center"
              style="width:36px;height:36px;">

@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+
+# Disallow admin and auth areas
+Disallow: /admin/
+Disallow: /auth/
+Disallow: /config/
+Disallow: /includes/
+Disallow: /api/
+
+# Sitemap (auto-generated)
+Sitemap: /sitemap.xml

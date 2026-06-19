@@ -23,5 +23,9 @@ if (!$id) {
 $stmt = $pdo->prepare("DELETE FROM notifications WHERE id = ?");
 $stmt->execute([$id]);
 
+// Auto-regenerate sitemap
+require_once ROOT . '/includes/sitemap-generator.php';
+generate_sitemap($pdo);
+
 header('Location: /admin/notifications/list.php?deleted=1');
 exit;
