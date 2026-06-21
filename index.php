@@ -110,11 +110,15 @@ $status_labels = [
 ?>
 
 <!-- Hero Section -->
-<section class="hero text-white">
+<section class="hero text-white" data-3d-hero>
+    <!-- Premium 3D: floating objects render onto a canvas injected here by
+         premium-3d.js (decorative only). All hero text below stays in the
+         DOM and fully crawlable. Falls back to CSS blobs without WebGL. -->
+
     <!-- Floating gradient blobs -->
-    <span class="hero-blob hero-blob-1"></span>
-    <span class="hero-blob hero-blob-2"></span>
-    <span class="hero-blob hero-blob-3"></span>
+    <span class="hero-blob hero-blob-1" data-parallax="0.25"></span>
+    <span class="hero-blob hero-blob-2" data-parallax="0.4"></span>
+    <span class="hero-blob hero-blob-3" data-parallax="0.15"></span>
 
     <div class="container hero-content">
         <div class="row justify-content-center text-center">
@@ -155,7 +159,7 @@ $status_labels = [
     <div class="container">
         <div class="row g-3">
             <div class="col-6 col-lg-3">
-                <div class="stat-card">
+                <div class="stat-card" data-tilt data-tilt-max="6">
                     <div class="stat-card-icon stat-grad-blue"><i class="fa-solid fa-bell"></i></div>
                     <div>
                         <div class="stat-card-value"><?= number_format((int)$stats['total_notifications']) ?>+</div>
@@ -164,7 +168,7 @@ $status_labels = [
                 </div>
             </div>
             <div class="col-6 col-lg-3">
-                <div class="stat-card">
+                <div class="stat-card" data-tilt data-tilt-max="6">
                     <div class="stat-card-icon stat-grad-green"><i class="fa-solid fa-file-pen"></i></div>
                     <div>
                         <div class="stat-card-value"><?= number_format((int)$stats['total_tests']) ?>+</div>
@@ -174,7 +178,7 @@ $status_labels = [
             </div>
             <?php if ($show_counters): ?>
             <div class="col-6 col-lg-3">
-                <div class="stat-card">
+                <div class="stat-card" data-tilt data-tilt-max="6">
                     <div class="stat-card-icon stat-grad-purple"><i class="fa-solid fa-users"></i></div>
                     <div>
                         <div class="stat-card-value"><?= number_format((int)$stats['total_users']) ?>+</div>
@@ -183,7 +187,7 @@ $status_labels = [
                 </div>
             </div>
             <div class="col-6 col-lg-3">
-                <div class="stat-card">
+                <div class="stat-card" data-tilt data-tilt-max="6">
                     <div class="stat-card-icon stat-grad-orange"><i class="fa-solid fa-trophy"></i></div>
                     <div>
                         <div class="stat-card-value"><?= number_format((int)$stats['total_purchases']) ?>+</div>

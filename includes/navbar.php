@@ -66,6 +66,11 @@ $user_avatar= $is_logged ? ($_SESSION['avatar'] ?? '') : '';
           <i class="fa-solid fa-magnifying-glass"></i>
         </button>
 
+        <!-- Premium 3D: dark/light theme toggle (enhanced by premium-3d.js) -->
+        <button class="fx-theme-toggle" type="button" data-theme-toggle aria-label="Toggle theme">
+          <i class="fa-solid fa-moon"></i>
+        </button>
+
         <?php if ($is_logged): ?>
           <!-- User avatar dropdown -->
           <div class="dropdown">

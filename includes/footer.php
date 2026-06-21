@@ -8,6 +8,8 @@ $footer_disclaimer = get_setting('footer_disclaimer')
 </div><!-- /.main-content -->
 
 <footer class="bg-dark text-light py-5 mt-5">
+  <!-- Premium 3D: animated footer background (decorative, aria-hidden) -->
+  <span class="fx-footer-bg" aria-hidden="true"></span>
   <div class="container">
     <div class="row g-4">
       <div class="col-lg-4 col-md-6">
@@ -91,6 +93,9 @@ $footer_disclaimer = get_setting('footer_disclaimer')
 
 <!-- Custom JS -->
 <script src="<?= asset('/assets/js/main.js') ?>"></script>
+
+<!-- Premium 3D enhancement engine (deferred, progressive, self-disabling on weak devices) -->
+<script src="<?= asset('/assets/js/premium-3d.js') ?>" defer></script>
 
 </body>
 </html>

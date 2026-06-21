@@ -15,6 +15,10 @@ $ga_id     = get_setting('google_analytics_id');
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script>
+/* No-FOUC theme init: apply saved theme before first paint (premium-3d) */
+(function(){try{var t=localStorage.getItem('ed-theme');if(t==='dark'){document.documentElement.setAttribute('data-theme','dark');}}catch(e){}})();
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <?php seo_render_head(); ?>
@@ -37,6 +41,9 @@ $ga_id     = get_setting('google_analytics_id');
 
 <!-- Custom CSS -->
 <link href="<?= asset('/assets/css/style.css') ?>" rel="stylesheet">
+
+<!-- Premium 3D enhancement layer (progressive enhancement, additive) -->
+<link href="<?= asset('/assets/css/premium-3d.css') ?>" rel="stylesheet">
 
 <?php if ($ga_id): ?>
 <!-- Google Analytics -->
