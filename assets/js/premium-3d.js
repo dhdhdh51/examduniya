@@ -45,29 +45,50 @@
      1) Scroll-reveal via IntersectionObserver
      ============================================================ */
   function initReveal() {
-    if (!fxEnabled || !('IntersectionObserver' in window)) return;
     var els = document.querySelectorAll('[data-reveal]');
     if (!els.length) return;
 
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('is-visible');
-          io.unobserve(entry.target);
-        }
+    // FAILSAFE: no matter what, reveal everything shortly after load so
+    // content can NEVER stay stuck invisible (covers IO errors, hidden
+    // containers, slow devices, etc.).
+    function revealAll() {
+      document.querySelectorAll('[data-reveal]').forEach(function (el) {
+        el.classList.add('is-visible');
       });
-    }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+    }
+    window.addEventListener('load', function () { setTimeout(revealAll, 1200); });
+    setTimeout(revealAll, 2500);
 
-    els.forEach(function (el) { io.observe(el); });
+    if (!fxEnabled || !('IntersectionObserver' in window)) {
+      revealAll();           // reduced-motion / old browsers: just show
+      return;
+    }
+
+    try {
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+            io.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.1, rootMargin: '0px 0px -6% 0px' });
+
+      els.forEach(function (el) { io.observe(el); });
+    } catch (e) {
+      revealAll();
+    }
   }
 
-  // Auto-tag common sections for reveal if author didn't add it.
+  // Auto-tag sections for reveal. Narrow scope + skip modals/offcanvas/
+  // hidden containers so nothing important is hidden by accident.
   function autoTagReveal() {
     if (!fxEnabled) return;
     var candidates = document.querySelectorAll(
-      'main section, .main-content section, .stat-card, .card'
+      '.main-content section, main section, .stat-card'
     );
     candidates.forEach(function (el) {
+      if (el.closest('.modal, .offcanvas, [hidden], [aria-hidden="true"]')) return;
       if (!el.hasAttribute('data-reveal')) el.setAttribute('data-reveal', '');
     });
   }
@@ -372,8 +393,9 @@
       if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
 
       start();
-      document.body.classList.add('fx-page-leave');
-      // Navigation proceeds naturally; class is just a fade hint.
+      // NOTE: we intentionally do NOT fade the <body> out here — doing so
+      // could leave the page blank if navigation is slow or cancelled.
+      // The top progress bar is enough of a transition hint.
     });
   }
 

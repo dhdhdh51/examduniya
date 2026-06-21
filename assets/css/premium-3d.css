@@ -170,16 +170,12 @@
 .fx-particles {
   position: fixed;
   inset: 0;
-  z-index: 0;
+  z-index: -1;              /* always BEHIND content — never overlaps */
   pointer-events: none;
   opacity: 0;
   transition: opacity 1.4s ease;
 }
-.fx-particles.is-ready { opacity: 0.55; }
-/* keep page content above the fixed particle layer */
-body > footer,
-body > .main-content,
-body > nav { position: relative; z-index: 1; }
+.fx-particles.is-ready { opacity: 0.5; }
 
 /* ------------------------------------------------------------
    6) Floating objects (pure CSS, used as hero fallback when
@@ -219,14 +215,14 @@ footer.bg-dark .container { position: relative; z-index: 1; }
 }
 
 /* ------------------------------------------------------------
-   8) Smooth page transitions (fade) — never blocks navigation.
+   8) Smooth page transitions — gentle ENTER only.
+   (Body never fades OUT, so navigation can never blank the page.)
    ------------------------------------------------------------ */
 .fx-on.fx-page-enter { animation: fxPageIn 0.45s var(--fx-ease) both; }
 @keyframes fxPageIn {
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: none; }
 }
-.fx-page-leave { opacity: 0 !important; transition: opacity 0.25s ease; }
 
 /* Top loading bar shown during navigation */
 .fx-progress {
