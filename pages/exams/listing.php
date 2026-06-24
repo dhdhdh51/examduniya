@@ -64,8 +64,46 @@ $status_labels = [
     'admitcard' => 'Admit Card',
 ];
 
+// --- SEO: only the clean category / base listing is indexable. Any search,
+// status, sort or pagination view is noindex,follow to avoid duplicate /
+// thin indexable pages.
+require_once ROOT . '/includes/seo.php';
+require_once ROOT . '/includes/schema.php';
+$is_filtered = ($search !== '' || $status !== '' || $sort !== 'newest' || $page > 1);
+if ($category && !$is_filtered) {
+    seo_set([
+        'title'       => seo_category_title($category === 'StatePSC' ? 'State PSC' : $category),
+        'description' => seo_clamp_description('Latest ' . ($category === 'StatePSC' ? 'State PSC' : $category)
+            . ' government job notifications, admit cards, results and exam updates on Exam Duniya. Find dates, vacancies, eligibility and official links.'),
+        'canonical'   => category_url($category),
+        'robots'      => 'index,follow',
+    ]);
+} elseif (!$category && !$is_filtered) {
+    seo_set([
+        'title'       => 'Latest Government Exam Notifications | Exam Duniya',
+        'description' => seo_clamp_description('Browse the latest SSC, UPSC, Railway, Banking, Defence and State government exam notifications, admit cards and results on Exam Duniya.'),
+        'canonical'   => '/exams/',
+        'robots'      => 'index,follow',
+    ]);
+} else {
+    seo_set([
+        'canonical' => $category ? category_url($category) : '/exams/',
+        'robots'    => 'noindex,follow',
+    ]);
+}
+
 require_once ROOT . '/includes/header.php';
 require_once ROOT . '/includes/navbar.php';
+
+// Structured data for the listing / category page.
+schema_breadcrumbs(array_values(array_filter([
+    ['name' => 'Home', 'url' => '/'],
+    ['name' => 'Exams', 'url' => '/exams/'],
+    $category ? ['name' => ($category === 'StatePSC' ? 'State PSC' : $category), 'url' => category_url($category)] : null,
+])));
+if ($category && !$is_filtered) {
+    schema_collection_page('Latest ' . ($category === 'StatePSC' ? 'State PSC' : $category) . ' Jobs', category_url($category));
+}
 
 // Build current filter URL (without page/sort)
 function build_filter_url($overrides = [])
@@ -89,9 +127,36 @@ function build_filter_url($overrides = [])
     <nav aria-label="breadcrumb" class="mb-3">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="/"><i class="fa-solid fa-house me-1"></i>Home</a></li>
-            <li class="breadcrumb-item active">Exam Notifications</li>
+            <li class="breadcrumb-item"><a href="/exams/">Exams</a></li>
+            <?php if ($category): ?>
+                <li class="breadcrumb-item active"><?= htmlspecialchars($category === 'StatePSC' ? 'State PSC' : $category) ?></li>
+            <?php else: ?>
+                <li class="breadcrumb-item active">Notifications</li>
+            <?php endif; ?>
         </ol>
     </nav>
+
+    <?php $cat_label = $category === 'StatePSC' ? 'State PSC' : $category; ?>
+    <header class="mb-3">
+        <h1 class="h3 fw-bold mb-1">
+            <?= $category
+                ? 'Latest ' . htmlspecialchars($cat_label) . ' Jobs, Admit Cards &amp; Results'
+                : 'Government Exam Notifications' ?>
+        </h1>
+        <?php if ($category && !$is_filtered): ?>
+            <p class="text-muted">
+                Find the latest <?= htmlspecialchars($cat_label) ?> recruitment notifications on Exam Duniya, with
+                application dates, vacancy details, eligibility and official links. Closed posts are kept for
+                reference and clearly marked, while active opportunities appear first. Always verify details on the
+                official website before applying.
+            </p>
+        <?php elseif (!$category && !$is_filtered): ?>
+            <p class="text-muted">
+                Browse the latest SSC, UPSC, Railway, Banking, Defence, Police and State government exam
+                notifications, admit cards and results — updated regularly and verified against official sources.
+            </p>
+        <?php endif; ?>
+    </header>
 
     <div class="row g-4">
 
@@ -246,7 +311,7 @@ function build_filter_url($overrides = [])
                                         <?php endif; ?>
                                     </div>
                                     <div class="mt-auto">
-                                        <a href="/pages/exams/detail.php?slug=<?= urlencode($notif['slug']) ?>"
+                                        <a href="<?= htmlspecialchars(exam_url($notif['slug'])) ?>"
                                            class="btn btn-primary btn-sm w-100">
                                             View Details <i class="fa-solid fa-arrow-right ms-1"></i>
                                         </a>

@@ -7,7 +7,7 @@ maintenance_mode_check();
 
 $slug = trim($_GET['slug'] ?? '');
 if (!$slug) {
-    header('Location: /pages/blog/listing.php');
+    header('Location: /blog/');
     exit;
 }
 
@@ -62,17 +62,61 @@ $rel_stmt->execute([$blog['category'], $blog['id']]);
 $related_posts = $rel_stmt->fetchAll(PDO::FETCH_ASSOC);
 
 $page_title = $blog['title'];
-$meta_desc  = excerpt($blog['excerpt'] ?: $blog['content'], 160);
+require_once ROOT . '/includes/seo.php';
+require_once ROOT . '/includes/schema.php';
 
-$site_url  = rtrim(get_setting('site_url') ?: '', '/');
-$page_url  = $site_url . '/pages/blog/detail.php?slug=' . urlencode($blog['slug']);
-$wa_text   = urlencode($blog['title'] . ' - ' . $page_url);
-$wa_url    = 'https://wa.me/?text=' . $wa_text;
+$site_url   = rtrim((get_setting('canonical_domain') ?: get_setting('site_url')) ?: 'https://examduniya.in', '/');
+$clean_path = blog_url($blog['slug']);
+$page_url   = $site_url . $clean_path;
+$wa_text    = urlencode($blog['title'] . ' - ' . $page_url);
+$wa_url     = 'https://wa.me/?text=' . $wa_text;
 
 $tags = array_filter(array_map('trim', explode(',', $blog['tags'] ?? '')));
 
+$seo_title = !empty($blog['seo_title']) ? $blog['seo_title'] : seo_blog_title($blog['title']);
+$seo_desc  = !empty($blog['meta_description'])
+    ? $blog['meta_description']
+    : seo_clamp_description($blog['excerpt'] ?: $blog['content']);
+$published = !empty($blog['published_at'])
+    ? date('c', strtotime($blog['published_at']))
+    : (!empty($blog['created_at']) ? date('c', strtotime($blog['created_at'])) : null);
+$modified  = !empty($blog['updated_at']) ? date('c', strtotime($blog['updated_at'])) : $published;
+$author_slug = !empty($blog['author_name']) ? slug($blog['author_name']) : '';
+
+// Estimated read time from the article body.
+$word_count = str_word_count(strip_tags((string)$blog['content']));
+$read_time  = max(1, (int)round($word_count / 200));
+
+seo_set([
+    'title'          => $seo_title,
+    'description'    => $seo_desc,
+    'canonical'      => !empty($blog['canonical_url']) ? $blog['canonical_url'] : $clean_path,
+    'robots'         => 'index,follow',
+    'og_type'        => 'article',
+    'og_image'       => !empty($blog['featured_image']) ? '/uploads/blogs/' . $blog['featured_image'] : '',
+    'published_time' => $published,
+    'modified_time'  => $modified,
+]);
+
 require_once ROOT . '/includes/header.php';
 require_once ROOT . '/includes/navbar.php';
+
+schema_breadcrumbs([
+    ['name' => 'Home', 'url' => '/'],
+    ['name' => 'Blog', 'url' => '/blog/'],
+    ['name' => $blog['title'], 'url' => $clean_path],
+]);
+schema_article([
+    'type'          => 'BlogPosting',
+    'headline'      => $blog['title'],
+    'url'           => $clean_path,
+    'description'   => $seo_desc,
+    'image'         => !empty($blog['featured_image']) ? '/uploads/blogs/' . $blog['featured_image'] : '',
+    'datePublished' => $published,
+    'dateModified'  => $modified,
+    'authorName'    => $blog['author_name'] ?? '',
+    'authorUrl'     => $author_slug ? author_url($author_slug) : '',
+]);
 ?>
 
 <div class="container my-4">
@@ -81,7 +125,7 @@ require_once ROOT . '/includes/navbar.php';
     <nav aria-label="breadcrumb" class="mb-3">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="/"><i class="fa-solid fa-house me-1"></i>Home</a></li>
-            <li class="breadcrumb-item"><a href="/pages/blog/listing.php">Blog</a></li>
+            <li class="breadcrumb-item"><a href="/blog/">Blog</a></li>
             <li class="breadcrumb-item active"><?= htmlspecialchars(mb_substr($blog['title'], 0, 50)) ?><?= mb_strlen($blog['title']) > 50 ? '...' : '' ?></li>
         </ol>
     </nav>
@@ -105,15 +149,19 @@ require_once ROOT . '/includes/navbar.php';
                     <?php if ($blog['author_name']): ?>
                         <div class="d-flex align-items-center gap-2">
                             <?php if ($blog['author_avatar']): ?>
-                                <img src="/uploads/avatars/<?= htmlspecialchars($blog['author_avatar']) ?>"
+                                <img src="<?= htmlspecialchars(get_avatar_url($blog['author_avatar'])) ?>"
                                      class="rounded-circle" width="28" height="28" alt="author">
                             <?php else: ?>
                                 <i class="fa-solid fa-circle-user fa-lg"></i>
                             <?php endif; ?>
-                            <span><?= htmlspecialchars($blog['author_name']) ?></span>
+                            <a href="<?= htmlspecialchars(author_url($author_slug)) ?>" class="text-decoration-none"><?= htmlspecialchars($blog['author_name']) ?></a>
                         </div>
                     <?php endif; ?>
                     <div><i class="fa-solid fa-calendar me-1"></i><?= htmlspecialchars(format_date($blog['created_at'])) ?></div>
+                    <?php if (!empty($blog['updated_at']) && date('Y-m-d', strtotime($blog['updated_at'])) !== date('Y-m-d', strtotime($blog['created_at']))): ?>
+                        <div><i class="fa-solid fa-pen me-1"></i>Updated <?= htmlspecialchars(format_date($blog['updated_at'])) ?></div>
+                    <?php endif; ?>
+                    <div><i class="fa-solid fa-clock me-1"></i><?= (int)$read_time ?> min read</div>
                     <div><i class="fa-solid fa-eye me-1"></i><?= number_format((int)$blog['views']) ?> views</div>
                     <?php if ($blog['category']): ?>
                         <div>
@@ -215,7 +263,7 @@ require_once ROOT . '/includes/navbar.php';
                             <div class="d-flex gap-3">
                                 <div class="flex-shrink-0">
                                     <?php if ($comment['avatar']): ?>
-                                        <img src="/uploads/avatars/<?= htmlspecialchars($comment['avatar']) ?>"
+                                        <img src="<?= htmlspecialchars(get_avatar_url($comment['avatar'])) ?>"
                                              class="rounded-circle" width="40" height="40" alt="avatar">
                                     <?php else: ?>
                                         <div class="rounded-circle bg-primary-light d-flex align-items-center justify-content-center"
@@ -256,7 +304,7 @@ require_once ROOT . '/includes/navbar.php';
                     <div class="card-body p-0">
                         <div class="list-group list-group-flush">
                             <?php foreach ($related_posts as $rp): ?>
-                                <a href="/pages/blog/detail.php?slug=<?= urlencode($rp['slug']) ?>"
+                                <a href="<?= htmlspecialchars(blog_url($rp['slug'])) ?>"
                                    class="list-group-item list-group-item-action py-3">
                                     <div class="d-flex gap-3 align-items-start">
                                         <?php if ($rp['featured_image']): ?>

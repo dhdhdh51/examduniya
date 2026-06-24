@@ -1,6 +1,6 @@
 <?php
 $current_uri = $_SERVER['REQUEST_URI'] ?? '/';
-$site_name   = get_setting('site_name') ?: 'GovExam Portal';
+$site_name   = get_setting('site_name') ?: 'Exam Duniya';
 $admin_name  = $_SESSION['name'] ?? 'Admin';
 $admin_avatar= $_SESSION['avatar'] ?? '';
 
@@ -34,8 +34,13 @@ function admin_nav_active($path, $current)
   <div class="px-3 py-3 border-bottom border-secondary">
     <div class="d-flex align-items-center gap-2">
       <?php if ($admin_avatar): ?>
-        <img src="/uploads/avatars/<?= htmlspecialchars($admin_avatar) ?>"
-             class="rounded-circle" width="36" height="36" alt="avatar">
+        <img src="<?= htmlspecialchars(get_avatar_url($admin_avatar)) ?>"
+             class="rounded-circle" width="36" height="36" alt="avatar"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
+        <div class="admin-avatar-placeholder rounded-circle bg-primary d-flex align-items-center justify-content-center"
+             style="width:36px;height:36px;display:none;">
+          <i class="fa-solid fa-user text-white small"></i>
+        </div>
       <?php else: ?>
         <div class="admin-avatar-placeholder rounded-circle bg-primary d-flex align-items-center justify-content-center"
              style="width:36px;height:36px;">
@@ -111,6 +116,18 @@ function admin_nav_active($path, $current)
                 <i class="fa-solid fa-plus me-2"></i>Add Test
               </a>
             </li>
+            <li class="nav-item">
+              <a class="nav-link <?= admin_nav_active('/admin/tests/generate', $current_uri) ?>"
+                 href="/admin/tests/generate.php">
+                <i class="fa-solid fa-robot me-2"></i>AI Generator
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link <?= admin_nav_active('/admin/tests/syllabus', $current_uri) ?>"
+                 href="/admin/tests/syllabus.php">
+                <i class="fa-solid fa-book-open me-2"></i>Syllabus
+              </a>
+            </li>
           </ul>
         </div>
       </li>
@@ -170,6 +187,45 @@ function admin_nav_active($path, $current)
            href="/admin/categories/">
           <i class="fa-solid fa-tags me-2"></i>Exam Categories
         </a>
+      </li>
+
+      <!-- SEO & Content Quality -->
+      <li class="nav-item mt-1">
+        <button class="btn nav-link text-start w-100 d-flex align-items-center justify-content-between"
+                type="button" data-bs-toggle="collapse" data-bs-target="#collapseSeo"
+                aria-expanded="<?= (strpos($current_uri, '/admin/seo') !== false) ? 'true' : 'false' ?>">
+          <span><i class="fa-solid fa-magnifying-glass-chart me-2"></i>SEO &amp; Quality</span>
+          <i class="fa-solid fa-chevron-down small"></i>
+        </button>
+        <div class="collapse <?= (strpos($current_uri, '/admin/seo') !== false) ? 'show' : '' ?>" id="collapseSeo">
+          <ul class="nav flex-column ps-3">
+            <li class="nav-item">
+              <a class="nav-link <?= admin_nav_active('/admin/seo/index', $current_uri) ?>" href="/admin/seo/">
+                <i class="fa-solid fa-gauge-high me-2"></i>SEO Dashboard
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link <?= admin_nav_active('/admin/seo/sitemap', $current_uri) ?>" href="/admin/seo/sitemap.php">
+                <i class="fa-solid fa-sitemap me-2"></i>Sitemap Manager
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link <?= admin_nav_active('/admin/seo/corrections', $current_uri) ?>" href="/admin/seo/corrections.php">
+                <i class="fa-solid fa-flag me-2"></i>Reported Corrections
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link <?= admin_nav_active('/admin/seo/redirects', $current_uri) ?>" href="/admin/seo/redirects.php">
+                <i class="fa-solid fa-route me-2"></i>Redirect Manager
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link <?= admin_nav_active('/admin/seo/broken-links', $current_uri) ?>" href="/admin/seo/broken-links.php">
+                <i class="fa-solid fa-link-slash me-2"></i>Broken Links
+              </a>
+            </li>
+          </ul>
+        </div>
       </li>
 
       <!-- AI Providers -->

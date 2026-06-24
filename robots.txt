@@ -1,0 +1,29 @@
+User-agent: *
+Allow: /
+
+# Block private / non-indexable areas
+Disallow: /admin/
+Disallow: /auth/
+Disallow: /api/
+Disallow: /cron/
+Disallow: /config/
+Disallow: /includes/
+Disallow: /pages/user/
+Disallow: /pages/tests/purchase.php
+Disallow: /pages/tests/result.php
+Disallow: /pages/tests/result-pdf.php
+Disallow: /pages/tests/attempt.php
+
+# Block filter / sort / search parameter URLs (avoid duplicate content)
+Disallow: /*?*sort=
+Disallow: /*?*status=
+Disallow: /*?*q=
+Disallow: /*?*page=
+
+# Sitemaps
+Sitemap: https://examduniya.in/sitemap.xml
+Sitemap: https://examduniya.in/sitemap-pages.xml
+Sitemap: https://examduniya.in/sitemap-exams.xml
+Sitemap: https://examduniya.in/sitemap-blogs.xml
+Sitemap: https://examduniya.in/sitemap-categories.xml
+Sitemap: https://examduniya.in/sitemap-mock-tests.xml

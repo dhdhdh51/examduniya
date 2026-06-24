@@ -1,0 +1,312 @@
+/* ============================================================
+   Exam Duniya — Premium 3D Enhancement Layer
+   ------------------------------------------------------------
+   Additive, progressive-enhancement styles. Loads on TOP of
+   style.css. Nothing here changes content, layout structure,
+   URLs or SEO — it only enriches visuals.
+
+   Heavy effects are gated behind the `.fx-on` body class, which
+   premium-3d.js adds ONLY when the device is capable and the user
+   has not requested reduced motion. So low-end phones and
+   `prefers-reduced-motion` users keep a clean, fast, flat UI.
+   ============================================================ */
+
+:root {
+  --fx-glass-bg:        rgba(255, 255, 255, 0.65);
+  --fx-glass-border:    rgba(255, 255, 255, 0.55);
+  --fx-glass-blur:      14px;
+  --fx-neon:            #2563EB;
+  --fx-neon-2:          #7c3aed;
+  --fx-neon-3:          #0ea5e9;
+  --fx-grad-1:          linear-gradient(135deg, #2563EB 0%, #7c3aed 100%);
+  --fx-grad-2:          linear-gradient(135deg, #0ea5e9 0%, #2563EB 100%);
+  --fx-shadow-3d:       0 18px 40px -12px rgba(37, 99, 235, 0.35);
+  --fx-ease:            cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ------------------------------------------------------------
+   1) Scroll-reveal — sections rise & fade in on enter.
+   Default state only applies when fx is on; otherwise content
+   is always visible (no JS dependency for visibility).
+   ------------------------------------------------------------ */
+.fx-on [data-reveal] {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.7s var(--fx-ease), transform 0.7s var(--fx-ease);
+  will-change: opacity, transform;
+}
+.fx-on [data-reveal].is-visible {
+  opacity: 1;
+  transform: none;
+}
+.fx-on [data-reveal][data-reveal="zoom"] { transform: scale(0.94); }
+.fx-on [data-reveal][data-reveal="left"] { transform: translateX(-36px); }
+.fx-on [data-reveal][data-reveal="right"]{ transform: translateX(36px); }
+.fx-on [data-reveal].is-visible { transform: none; }
+
+/* Stagger helper */
+.fx-on [data-reveal-delay="1"] { transition-delay: 0.08s; }
+.fx-on [data-reveal-delay="2"] { transition-delay: 0.16s; }
+.fx-on [data-reveal-delay="3"] { transition-delay: 0.24s; }
+.fx-on [data-reveal-delay="4"] { transition-delay: 0.32s; }
+
+/* ------------------------------------------------------------
+   2) 3D Glassmorphism cards + tilt
+   Enhances existing .card without changing markup.
+   ------------------------------------------------------------ */
+.fx-on .card {
+  transform-style: preserve-3d;
+  transition: transform 0.35s var(--fx-ease), box-shadow 0.35s var(--fx-ease);
+  will-change: transform;
+}
+.fx-on .card:hover {
+  box-shadow: var(--fx-shadow-3d);
+}
+
+/* Opt-in tilt: add class .fx-tilt OR data-tilt to any element */
+.fx-on .fx-tilt,
+.fx-on [data-tilt] {
+  transform-style: preserve-3d;
+  transition: transform 0.18s var(--fx-ease), box-shadow 0.3s var(--fx-ease);
+}
+
+/* Glass card variant — opt-in via .fx-glass */
+.fx-glass {
+  background: var(--fx-glass-bg);
+  -webkit-backdrop-filter: blur(var(--fx-glass-blur));
+  backdrop-filter: blur(var(--fx-glass-blur));
+  border: 1px solid var(--fx-glass-border);
+  box-shadow: 0 8px 32px rgba(31, 41, 55, 0.12);
+}
+
+/* Depth shine that follows the tilt (set via JS custom props) */
+.fx-on [data-tilt] .fx-shine,
+.fx-on .fx-tilt .fx-shine {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(
+    circle at var(--mx, 50%) var(--my, 50%),
+    rgba(255, 255, 255, 0.35),
+    rgba(255, 255, 255, 0) 45%
+  );
+  opacity: 0;
+  transition: opacity 0.3s var(--fx-ease);
+}
+.fx-on [data-tilt]:hover .fx-shine,
+.fx-on .fx-tilt:hover .fx-shine { opacity: 1; }
+
+/* ------------------------------------------------------------
+   3) Interactive 3D buttons
+   Enhances Bootstrap .btn-primary / .btn-gradient-accent etc.
+   ------------------------------------------------------------ */
+.fx-on .btn {
+  transition: transform 0.18s var(--fx-ease), box-shadow 0.25s var(--fx-ease), filter 0.25s ease;
+}
+.fx-on .btn-primary,
+.fx-on .btn-success,
+.fx-on .btn-gradient-accent {
+  position: relative;
+  box-shadow: 0 6px 16px -6px rgba(37, 99, 235, 0.55);
+}
+.fx-on .btn-primary:hover,
+.fx-on .btn-success:hover,
+.fx-on .btn-gradient-accent:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 26px -8px rgba(37, 99, 235, 0.6);
+  filter: saturate(1.1) brightness(1.03);
+}
+.fx-on .btn-primary:active,
+.fx-on .btn-success:active,
+.fx-on .btn-gradient-accent:active {
+  transform: translateY(1px) scale(0.99);
+}
+
+/* Optional neon-glow CTA — opt-in via .fx-btn-3d */
+.fx-btn-3d {
+  position: relative;
+  border: 0;
+  color: #fff;
+  background-image: var(--fx-grad-1);
+  background-size: 200% 200%;
+  border-radius: 999px;
+  isolation: isolate;
+  overflow: hidden;
+}
+.fx-on .fx-btn-3d:hover { animation: fxGradShift 3s ease infinite; }
+.fx-btn-3d::after {
+  content: "";
+  position: absolute; inset: 0;
+  border-radius: inherit;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.2) inset;
+  pointer-events: none;
+}
+@keyframes fxGradShift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ------------------------------------------------------------
+   4) Hero 3D canvas — decorative, sits BEHIND existing text.
+   The text stays in normal DOM (fully crawlable).
+   ------------------------------------------------------------ */
+.fx-hero-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 1.2s ease;
+}
+.fx-hero-canvas.is-ready { opacity: 1; }
+.hero .hero-content,
+.hero .container { position: relative; z-index: 2; }
+
+/* ------------------------------------------------------------
+   5) Lightweight particle / mesh background canvas
+   ------------------------------------------------------------ */
+.fx-particles {
+  position: fixed;
+  inset: 0;
+  z-index: -1;              /* always BEHIND content — never overlaps */
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 1.4s ease;
+}
+.fx-particles.is-ready { opacity: 0.5; }
+
+/* ------------------------------------------------------------
+   6) Floating objects (pure CSS, used as hero fallback when
+   WebGL is unavailable) — niche-relevant: caps, books, badges.
+   ------------------------------------------------------------ */
+.fx-float {
+  animation: fxFloat 6s ease-in-out infinite;
+  will-change: transform;
+}
+.fx-float.fx-float-2 { animation-duration: 8s; animation-delay: -2s; }
+.fx-float.fx-float-3 { animation-duration: 7s; animation-delay: -4s; }
+@keyframes fxFloat {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50%      { transform: translateY(-16px) rotate(3deg); }
+}
+
+/* ------------------------------------------------------------
+   7) Animated footer background (kept subtle for readability)
+   ------------------------------------------------------------ */
+footer.bg-dark { position: relative; overflow: hidden; }
+.fx-footer-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(60% 80% at 15% 20%, rgba(37,99,235,0.25), transparent 60%),
+    radial-gradient(50% 70% at 85% 30%, rgba(124,58,237,0.22), transparent 60%);
+  opacity: 0;
+  transition: opacity 1.5s ease;
+}
+.fx-on .fx-footer-bg { opacity: 1; animation: fxFooterDrift 18s ease-in-out infinite alternate; }
+footer.bg-dark .container { position: relative; z-index: 1; }
+@keyframes fxFooterDrift {
+  0%   { transform: translate3d(0,0,0) scale(1); }
+  100% { transform: translate3d(0,-12px,0) scale(1.06); }
+}
+
+/* ------------------------------------------------------------
+   8) Smooth page transitions — gentle ENTER only.
+   (Body never fades OUT, so navigation can never blank the page.)
+   ------------------------------------------------------------ */
+.fx-on.fx-page-enter { animation: fxPageIn 0.45s var(--fx-ease) both; }
+@keyframes fxPageIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* Top loading bar shown during navigation */
+.fx-progress {
+  position: fixed; top: 0; left: 0; height: 3px; width: 0;
+  background: var(--fx-grad-1);
+  z-index: 9999;
+  transition: width 0.3s ease, opacity 0.4s ease;
+  box-shadow: 0 0 10px rgba(37,99,235,0.6);
+}
+
+/* ------------------------------------------------------------
+   9) Theme toggle button
+   ------------------------------------------------------------ */
+.fx-theme-toggle {
+  width: 38px; height: 38px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--white);
+  color: var(--dark);
+  cursor: pointer;
+  transition: var(--transition);
+}
+.fx-theme-toggle:hover { transform: rotate(15deg) scale(1.08); color: var(--primary); }
+
+/* ------------------------------------------------------------
+   10) OPTIONAL dark premium theme (opt-in via data-theme="dark").
+   Default stays light so existing content readability is safe.
+   ------------------------------------------------------------ */
+html[data-theme="dark"] body {
+  background: #0b1020;
+  color: #e2e8f0;
+}
+html[data-theme="dark"] {
+  --light: #0b1020;
+  --white: #121a30;
+  --dark: #e2e8f0;
+  --border: #233152;
+  --gray-100: #16203a;
+  --gray-200: #1c2945;
+}
+html[data-theme="dark"] h1,
+html[data-theme="dark"] h2,
+html[data-theme="dark"] h3,
+html[data-theme="dark"] h4,
+html[data-theme="dark"] h5,
+html[data-theme="dark"] h6 { color: #f1f5f9; }
+html[data-theme="dark"] .navbar.bg-white { background: #121a30 !important; border-color: #233152 !important; }
+html[data-theme="dark"] .card { background: #121a30; border-color: #233152; }
+html[data-theme="dark"] .bg-white { background: #121a30 !important; }
+html[data-theme="dark"] .text-dark { color: #e2e8f0 !important; }
+html[data-theme="dark"] .text-muted,
+html[data-theme="dark"] .text-secondary { color: #94a3b8 !important; }
+html[data-theme="dark"] .border,
+html[data-theme="dark"] .border-bottom,
+html[data-theme="dark"] .border-top { border-color: #233152 !important; }
+html[data-theme="dark"] .table { color: #e2e8f0; }
+html[data-theme="dark"] .form-control,
+html[data-theme="dark"] .form-select {
+  background: #0e1730; color: #e2e8f0; border-color: #233152;
+}
+html[data-theme="dark"] .fx-glass {
+  background: rgba(18, 26, 48, 0.6);
+  border-color: rgba(255,255,255,0.08);
+}
+html[data-theme="dark"] .fx-theme-toggle { background: #121a30; color: #e2e8f0; border-color: #233152; }
+
+/* ------------------------------------------------------------
+   11) Mobile + accessibility safeguards
+   ------------------------------------------------------------ */
+@media (max-width: 768px) {
+  /* Lighter effects on phones */
+  .fx-particles.is-ready { opacity: 0.35; }
+  .fx-on .card:hover { transform: translateY(-3px) !important; box-shadow: var(--shadow-lg); }
+  /* never allow horizontal overflow from transforms */
+  html, body { overflow-x: hidden; }
+}
+
+/* Respect reduced-motion: kill all fx animations/transforms */
+@media (prefers-reduced-motion: reduce) {
+  .fx-on [data-reveal] { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .fx-float { animation: none !important; }
+  .fx-footer-bg { animation: none !important; }
+  .fx-hero-canvas, .fx-particles { display: none !important; }
+  .fx-on .card:hover,
+  .fx-on .btn:hover { transform: none !important; }
+}

@@ -71,6 +71,8 @@ $time_str = ($tt_hours > 0 ? $tt_hours . 'h ' : '') . $tt_mins . 'm ' . $tt_secs
 $completed_at = !empty($attempt['completed_at']) ? format_date($attempt['completed_at'], 'd M Y, h:i A') : 'N/A';
 
 $page_title = 'Test Result — ' . htmlspecialchars($test['title']);
+require_once ROOT . '/includes/seo.php';
+seo_set(['robots' => 'noindex,follow']);
 require_once ROOT . '/includes/header.php';
 require_once ROOT . '/includes/navbar.php';
 ?>

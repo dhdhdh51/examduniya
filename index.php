@@ -2,10 +2,18 @@
 define('ROOT', __DIR__);
 require_once ROOT . '/config/db.php';
 require_once ROOT . '/includes/functions.php';
+require_once ROOT . '/includes/seo.php';
+require_once ROOT . '/includes/schema.php';
 if (session_status() === PHP_SESSION_NONE) session_start();
 maintenance_mode_check();
-$page_title = 'Home';
-$meta_desc  = get_setting('site_description') ?: 'Government Exam Notifications, Mock Tests & Study Material';
+
+seo_set([
+    'title'       => get_setting('homepage_seo_title') ?: 'Exam Duniya: Govt Exam Notifications, Free Mock Tests & Results',
+    'description' => get_setting('site_description') ?: 'Get latest SSC, UPSC, Railway, Banking, Defence, UP Police and State Government job notifications, admit cards, results, syllabus, free mock tests and study material on Exam Duniya.',
+    'canonical'   => '/',
+]);
+
+$show_counters = (get_setting('show_public_counters') === '1');
 
 // Stats
 try {
@@ -19,13 +27,29 @@ try {
     $stats = ['total_notifications' => 0, 'total_tests' => 0, 'total_users' => 0, 'total_purchases' => 0];
 }
 
-// Latest Notifications
+// Latest Notifications — exclude closed/expired posts so old application
+// forms never show up here. Falls back to the legacy query if the new
+// SEO columns are not present yet.
 try {
-    $stmt = $pdo->prepare("SELECT id, title, slug, category, status, conducting_body, last_date_apply, vacancies FROM notifications WHERE status != 'upcoming' OR status = 'upcoming' ORDER BY created_at DESC LIMIT 6");
+    $stmt = $pdo->prepare(
+        "SELECT id, title, slug, category, status, conducting_body, last_date_apply, vacancies
+           FROM notifications
+          WHERE (is_homepage_visible IS NULL OR is_homepage_visible = 1)
+            AND (computed_status IS NULL OR computed_status <> 'closed')
+            AND (COALESCE(application_last_date, last_date_apply) IS NULL
+                 OR COALESCE(application_last_date, last_date_apply) >= CURDATE())
+          ORDER BY is_featured DESC, created_at DESC LIMIT 6"
+    );
     $stmt->execute();
     $notifications = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (Exception $e) {
-    $notifications = [];
+    try {
+        $stmt = $pdo->prepare("SELECT id, title, slug, category, status, conducting_body, last_date_apply, vacancies FROM notifications ORDER BY created_at DESC LIMIT 6");
+        $stmt->execute();
+        $notifications = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (Exception $e2) {
+        $notifications = [];
+    }
 }
 
 // Featured Mock Tests
@@ -48,6 +72,10 @@ try {
 
 require_once ROOT . '/includes/header.php';
 require_once ROOT . '/includes/navbar.php';
+
+// Homepage structured data
+schema_organization();
+schema_website(true);
 
 // Homepage category shortcuts — pull from managed list (dynamic), cap at 8
 $cat_icons  = [
@@ -82,11 +110,15 @@ $status_labels = [
 ?>
 
 <!-- Hero Section -->
-<section class="hero text-white">
+<section class="hero text-white" data-3d-hero>
+    <!-- Premium 3D: floating objects render onto a canvas injected here by
+         premium-3d.js (decorative only). All hero text below stays in the
+         DOM and fully crawlable. Falls back to CSS blobs without WebGL. -->
+
     <!-- Floating gradient blobs -->
-    <span class="hero-blob hero-blob-1"></span>
-    <span class="hero-blob hero-blob-2"></span>
-    <span class="hero-blob hero-blob-3"></span>
+    <span class="hero-blob hero-blob-1" data-parallax="0.25"></span>
+    <span class="hero-blob hero-blob-2" data-parallax="0.4"></span>
+    <span class="hero-blob hero-blob-3" data-parallax="0.15"></span>
 
     <div class="container hero-content">
         <div class="row justify-content-center text-center">
@@ -94,13 +126,13 @@ $status_labels = [
                 <span class="hero-eyebrow mb-3">
                     <i class="fa-solid fa-bolt"></i> India's all-in-one exam companion
                 </span>
-                <h1 class="hero-title mb-3">Your Gateway to <span class="hero-gradient-text">Government Jobs</span></h1>
-                <p class="hero-subtitle mb-4">Latest SSC, UPSC, Railway &amp; Banking notifications, plus free &amp; premium mock tests — all in one modern platform.</p>
+                <h1 class="hero-title mb-3">Government Exam Notifications, <span class="hero-gradient-text">Free Mock Tests</span> &amp; Study Material</h1>
+                <p class="hero-subtitle mb-4">Stay updated with SSC, UPSC, Railway, Banking, Defence, State PSC, Police and other government exam opportunities.</p>
 
                 <!-- Category Pills -->
                 <div class="category-pills mb-4">
                     <?php foreach ($categories as $cat): ?>
-                        <a href="/pages/exams/listing.php?category=<?= urlencode($cat) ?>"
+                        <a href="<?= htmlspecialchars(category_url($cat)) ?>"
                            class="hero-pill">
                             <i class="fa-solid <?= htmlspecialchars($cat_icons[$cat] ?? 'fa-star') ?>"></i>
                             <?= htmlspecialchars($cat === 'StatePSC' ? 'State PSC' : $cat) ?>
@@ -110,10 +142,10 @@ $status_labels = [
 
                 <!-- CTA Buttons -->
                 <div class="d-flex flex-wrap justify-content-center gap-3 mt-4">
-                    <a href="/pages/exams/" class="btn btn-light btn-lg fw-semibold rounded-pill px-4 hero-cta">
+                    <a href="/exams/" class="btn btn-light btn-lg fw-semibold rounded-pill px-4 hero-cta">
                         <i class="fa-solid fa-bell me-2 text-primary"></i>View Notifications
                     </a>
-                    <a href="/pages/tests/" class="btn btn-lg fw-semibold rounded-pill px-4 btn-gradient-accent">
+                    <a href="/mock-tests/" class="btn btn-lg fw-semibold rounded-pill px-4 btn-gradient-accent">
                         <i class="fa-solid fa-file-pen me-2"></i>Start Mock Test
                     </a>
                 </div>
@@ -127,7 +159,7 @@ $status_labels = [
     <div class="container">
         <div class="row g-3">
             <div class="col-6 col-lg-3">
-                <div class="stat-card">
+                <div class="stat-card" data-tilt data-tilt-max="6">
                     <div class="stat-card-icon stat-grad-blue"><i class="fa-solid fa-bell"></i></div>
                     <div>
                         <div class="stat-card-value"><?= number_format((int)$stats['total_notifications']) ?>+</div>
@@ -136,7 +168,7 @@ $status_labels = [
                 </div>
             </div>
             <div class="col-6 col-lg-3">
-                <div class="stat-card">
+                <div class="stat-card" data-tilt data-tilt-max="6">
                     <div class="stat-card-icon stat-grad-green"><i class="fa-solid fa-file-pen"></i></div>
                     <div>
                         <div class="stat-card-value"><?= number_format((int)$stats['total_tests']) ?>+</div>
@@ -144,8 +176,9 @@ $status_labels = [
                     </div>
                 </div>
             </div>
+            <?php if ($show_counters): ?>
             <div class="col-6 col-lg-3">
-                <div class="stat-card">
+                <div class="stat-card" data-tilt data-tilt-max="6">
                     <div class="stat-card-icon stat-grad-purple"><i class="fa-solid fa-users"></i></div>
                     <div>
                         <div class="stat-card-value"><?= number_format((int)$stats['total_users']) ?>+</div>
@@ -154,7 +187,7 @@ $status_labels = [
                 </div>
             </div>
             <div class="col-6 col-lg-3">
-                <div class="stat-card">
+                <div class="stat-card" data-tilt data-tilt-max="6">
                     <div class="stat-card-icon stat-grad-orange"><i class="fa-solid fa-trophy"></i></div>
                     <div>
                         <div class="stat-card-value"><?= number_format((int)$stats['total_purchases']) ?>+</div>
@@ -162,6 +195,7 @@ $status_labels = [
                     </div>
                 </div>
             </div>
+            <?php endif; ?>
         </div>
     </div>
 </section>
@@ -175,7 +209,7 @@ $status_labels = [
                 <h2 class="section-title mb-0">Latest Notifications</h2>
                 <div class="section-divider"></div>
             </div>
-            <a href="/pages/exams/listing.php" class="btn btn-outline-primary btn-sm">
+            <a href="/exams/" class="btn btn-outline-primary btn-sm">
                 View All <i class="fa-solid fa-arrow-right ms-1"></i>
             </a>
         </div>
@@ -229,7 +263,7 @@ $status_labels = [
                                     <?php endif; ?>
                                 </div>
                                 <div class="mt-auto">
-                                    <a href="/pages/exams/detail.php?slug=<?= urlencode($notif['slug']) ?>"
+                                    <a href="<?= htmlspecialchars(exam_url($notif['slug'])) ?>"
                                        class="btn btn-primary btn-sm w-100">
                                         View Details <i class="fa-solid fa-arrow-right ms-1"></i>
                                     </a>
@@ -315,7 +349,7 @@ $status_labels = [
                 <h2 class="section-title mb-0">Recent Blog Posts</h2>
                 <div class="section-divider"></div>
             </div>
-            <a href="/pages/blog/listing.php" class="btn btn-outline-primary btn-sm">
+            <a href="/blog/" class="btn btn-outline-primary btn-sm">
                 View All <i class="fa-solid fa-arrow-right ms-1"></i>
             </a>
         </div>
@@ -350,7 +384,7 @@ $status_labels = [
                                     <i class="fa-solid fa-calendar me-1"></i>
                                     <?= htmlspecialchars(format_date($blog['created_at'])) ?>
                                 </p>
-                                <a href="/pages/blog/detail.php?slug=<?= urlencode($blog['slug']) ?>"
+                                <a href="<?= htmlspecialchars(blog_url($blog['slug'])) ?>"
                                    class="btn btn-outline-primary btn-sm">
                                     Read More <i class="fa-solid fa-arrow-right ms-1"></i>
                                 </a>

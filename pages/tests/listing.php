@@ -83,6 +83,13 @@ function build_test_filter_url($overrides = [])
 }
 
 $page_title = 'Mock Tests';
+require_once ROOT . '/includes/seo.php';
+seo_set([
+    'title'       => 'Free Government Exam Mock Tests | Exam Duniya',
+    'description' => 'Practice free and premium online mock tests for SSC, UPSC, Railway, Banking, Defence and State exams on Exam Duniya, with instant scores and detailed solutions.',
+    'canonical'   => '/mock-tests/',
+    'robots'      => 'index,follow',
+]);
 require_once ROOT . '/includes/header.php';
 require_once ROOT . '/includes/navbar.php';
 ?>

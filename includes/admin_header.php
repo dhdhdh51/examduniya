@@ -7,7 +7,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 require_admin();
 
-$site_name = get_setting('site_name') ?: 'GovExam Portal';
+$site_name = get_setting('site_name') ?: 'Exam Duniya';
 $admin_name = $_SESSION['name'] ?? 'Admin';
 ?>
 <!DOCTYPE html>

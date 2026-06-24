@@ -1,22 +1,121 @@
 Options -Indexes
 RewriteEngine On
 
-# Clean URL rewrites
+# =====================================================================
+# Exam Duniya — Apache rewrite + SEO rules
+# Canonical domain: https://examduniya.in  (HTTPS, non-www)
+# =====================================================================
+
+# ---------------------------------------------------------------------
+# 1) Force HTTPS + non-www in a SINGLE 301 (avoids redirect chains/loops)
+#    www.examduniya.in/*  and  http://*  ->  https://examduniya.in/*
+# ---------------------------------------------------------------------
+RewriteCond %{HTTPS} !=on [OR]
+RewriteCond %{HTTP_HOST} ^www\. [NC]
+RewriteCond %{HTTP_HOST} ^(?:www\.)?(.+)$ [NC]
+RewriteRule ^ https://%1%{REQUEST_URI} [R=301,L]
+
+# ---------------------------------------------------------------------
+# 2) Custom error documents
+# ---------------------------------------------------------------------
+ErrorDocument 404 /404.php
+ErrorDocument 403 /403.php
+
+# ---------------------------------------------------------------------
+# 3) Sitemap routes (served by PHP generators)
+# ---------------------------------------------------------------------
+RewriteRule ^sitemap\.xml$            /sitemap.xml.php            [L]
+RewriteRule ^sitemap-pages\.xml$      /sitemaps/pages.php         [L]
+RewriteRule ^sitemap-exams\.xml$      /sitemaps/exams.php         [L]
+RewriteRule ^sitemap-blogs\.xml$      /sitemaps/blogs.php         [L]
+RewriteRule ^sitemap-categories\.xml$ /sitemaps/categories.php    [L]
+RewriteRule ^sitemap-mock-tests\.xml$ /sitemaps/mock-tests.php    [L]
+
+# ---------------------------------------------------------------------
+# 4) Static trust pages (clean URLs)
+# ---------------------------------------------------------------------
+RewriteRule ^about-exam-duniya/?$   /pages/about-exam-duniya.php [L]
+RewriteRule ^editorial-policy/?$    /pages/editorial-policy.php  [L]
+RewriteRule ^fact-check-policy/?$   /pages/fact-check-policy.php [L]
+RewriteRule ^correction-policy/?$   /pages/correction-policy.php [L]
+RewriteRule ^contact/?$             /pages/contact.php           [L]
+
+# ---------------------------------------------------------------------
+# 5) 301-redirect OLD ugly URLs -> NEW clean URLs.
+#    The THE_REQUEST guard ensures this only fires for real browser
+#    requests, NOT for the internal rewrites below (no redirect loop).
+# ---------------------------------------------------------------------
+# /pages/exams/detail.php?slug=X  ->  /exams/X/
+RewriteCond %{THE_REQUEST} \s/pages/exams/detail\.php\?slug=([^&\s]+) [NC]
+RewriteRule ^ /exams/%1/? [R=301,L]
+# /pages/blog/detail.php?slug=X   ->  /blog/X/
+RewriteCond %{THE_REQUEST} \s/pages/blog/detail\.php\?slug=([^&\s]+) [NC]
+RewriteRule ^ /blog/%1/? [R=301,L]
+# Legacy /notification/X  ->  /exams/X/  (consolidate to one clean form)
+RewriteCond %{THE_REQUEST} \s/notification/([^\s/]+)/?\s [NC]
+RewriteRule ^ /exams/%1/? [R=301,L]
+
+# ---------------------------------------------------------------------
+# 6) NEW clean URLs -> internal PHP (only when not a real file/dir)
+# ---------------------------------------------------------------------
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+RewriteRule ^exams/?$              /pages/exams/listing.php               [QSA,L]
+RewriteRule ^exams/([^/]+)/?$      /pages/exams/detail.php?slug=$1        [QSA,L]
+RewriteRule ^blog/?$              /pages/blog/listing.php                [QSA,L]
+RewriteRule ^blog/([^/]+)/?$      /pages/blog/detail.php?slug=$1         [QSA,L]
+RewriteRule ^mock-tests/?$         /pages/tests/listing.php               [QSA,L]
+RewriteRule ^category/([^/]+)/?$   /pages/exams/listing.php?category=$1   [QSA,L]
+RewriteRule ^author/([^/]+)/?$     /pages/author.php?slug=$1              [QSA,L]
+RewriteRule ^authors/([^/]+)/?$    /pages/author.php?slug=$1              [QSA,L]
+
+# ---------------------------------------------------------------------
+# 7) Legacy clean URLs (kept for backward compatibility / old shares)
+# ---------------------------------------------------------------------
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^notification/(.+)$ /pages/exams/detail.php?slug=$1 [QSA,L]
-RewriteRule ^blog/(.+)$ /pages/blog/detail.php?slug=$1 [QSA,L]
-RewriteRule ^test/([0-9]+)$ /pages/tests/attempt.php?test_id=$1 [QSA,L]
-RewriteRule ^sitemap\.xml$ /sitemap.xml.php [QSA,L]
+RewriteRule ^test/([0-9]+)$     /pages/tests/attempt.php?test_id=$1 [QSA,L]
 
+# =====================================================================
+# Security
+# =====================================================================
 # Block sensitive file types
-<FilesMatch "\.(env|sql|log|sh|bak)$">
-    Order allow,deny
-    Deny from all
+<FilesMatch "\.(env|sql|log|sh|bak|ini)$">
+    Require all denied
 </FilesMatch>
 
 # Block direct access to config and includes directories
 <IfModule mod_rewrite.c>
-    RewriteRule ^config/ - [F,L]
+    RewriteRule ^config/   - [F,L]
     RewriteRule ^includes/ - [F,L]
+    RewriteRule ^cron/     - [F,L]
+</IfModule>
+
+# =====================================================================
+# Performance — gzip + browser caching (Part 12)
+# =====================================================================
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css
+    AddOutputFilterByType DEFLATE application/javascript application/json
+    AddOutputFilterByType DEFLATE image/svg+xml
+</IfModule>
+
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/webp "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+    ExpiresByType image/x-icon "access plus 1 year"
+    ExpiresByType text/html "access plus 0 seconds"
+</IfModule>
+
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
 </IfModule>

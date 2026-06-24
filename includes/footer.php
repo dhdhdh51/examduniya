@@ -1,16 +1,24 @@
 <?php
-$site_name = get_setting('site_name') ?: 'GovExam Portal';
+$site_name = get_setting('site_name') ?: 'Exam Duniya';
 $site_url  = get_setting('site_url') ?: '#';
+$site_logo = get_setting('site_logo');
+$footer_disclaimer = get_setting('footer_disclaimer')
+    ?: 'Exam Duniya is an independent education and exam information platform. We are not affiliated with any government recruitment board. Candidates must verify all important details from the official website before applying.';
 ?>
 </div><!-- /.main-content -->
 
 <footer class="bg-dark text-light py-5 mt-5">
+  <!-- Premium 3D: animated footer background (decorative, aria-hidden) -->
+  <span class="fx-footer-bg" aria-hidden="true"></span>
   <div class="container">
     <div class="row g-4">
       <div class="col-lg-4 col-md-6">
         <h5 class="fw-bold mb-3">
-          <i class="fa-solid fa-graduation-cap text-primary me-2"></i>
-          <?= htmlspecialchars($site_name) ?>
+          <?php if (!empty($site_logo)): ?>
+            <img src="/uploads/site/<?= htmlspecialchars($site_logo) ?>" alt="<?= htmlspecialchars($site_name) ?>" class="footer-logo">
+          <?php else: ?>
+            <i class="fa-solid fa-graduation-cap text-primary me-2"></i><?= htmlspecialchars($site_name) ?>
+          <?php endif; ?>
         </h5>
         <p class="text-secondary small">
           Your trusted destination for Government exam notifications, free mock tests,
@@ -61,6 +69,16 @@ $site_url  = get_setting('site_url') ?: '#';
       </div>
     </div>
     <hr class="border-secondary mt-4">
+    <p class="text-center text-secondary small mb-2" style="max-width:900px;margin-inline:auto;">
+      <?= htmlspecialchars($footer_disclaimer) ?>
+    </p>
+    <ul class="list-inline small text-center text-secondary mb-2">
+      <li class="list-inline-item"><a href="/about-exam-duniya/" class="text-secondary text-decoration-none">About Exam Duniya</a></li>
+      <li class="list-inline-item"><a href="/editorial-policy/" class="text-secondary text-decoration-none">Editorial Policy</a></li>
+      <li class="list-inline-item"><a href="/fact-check-policy/" class="text-secondary text-decoration-none">Fact-Check Policy</a></li>
+      <li class="list-inline-item"><a href="/correction-policy/" class="text-secondary text-decoration-none">Correction Policy</a></li>
+      <li class="list-inline-item"><a href="/contact/" class="text-secondary text-decoration-none">Contact</a></li>
+    </ul>
     <p class="text-center text-secondary small mb-0">
       &copy; <?= date('Y') ?> <?= htmlspecialchars($site_name) ?>. All rights reserved.
     </p>
@@ -75,6 +93,9 @@ $site_url  = get_setting('site_url') ?: '#';
 
 <!-- Custom JS -->
 <script src="<?= asset('/assets/js/main.js') ?>"></script>
+
+<!-- Premium 3D enhancement engine (deferred, progressive, self-disabling on weak devices) -->
+<script src="<?= asset('/assets/js/premium-3d.js') ?>" defer></script>
 
 </body>
 </html>

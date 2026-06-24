@@ -4,7 +4,7 @@ require_once ROOT . '/config/db.php';
 require_once ROOT . '/includes/functions.php';
 if (session_status() === PHP_SESSION_NONE) session_start();
 
-$site_name  = get_setting('site_name') ?: 'GovExam Portal';
+$site_name  = get_setting('site_name') ?: 'Exam Duniya';
 $site_url    = get_setting('site_url');
 $contact_email = get_setting('smtp_from_email') ?: get_setting('smtp_username');
 $page_title = 'Contact Us';

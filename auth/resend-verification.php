@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 $site_url = get_setting('site_url') ?: '';
                 $link     = rtrim($site_url, '/') . '/auth/verify-email.php?token=' . urlencode($token);
-                $site_name = get_setting('site_name') ?: 'GovExam Portal';
+                $site_name = get_setting('site_name') ?: 'Exam Duniya';
 
                 $html = '
                 <div style="font-family:Inter,sans-serif;max-width:560px;margin:0 auto">
@@ -73,7 +73,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Resend Verification &mdash; GovExam Portal</title>
+<meta name="robots" content="noindex,follow">
+<title>Resend Verification &mdash; Exam Duniya</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
@@ -86,7 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <div class="auth-card p-4 p-md-5 shadow-lg">
         <div class="text-center mb-4">
           <div class="auth-logo">&#x1F4DA;</div>
-          <h4 class="fw-bold">GovExam Portal</h4>
+          <h4 class="fw-bold">Exam Duniya</h4>
           <p class="text-muted small mt-1">Resend Verification Email</p>
         </div>
 

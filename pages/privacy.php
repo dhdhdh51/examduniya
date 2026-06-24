@@ -4,7 +4,7 @@ require_once ROOT . '/config/db.php';
 require_once ROOT . '/includes/functions.php';
 if (session_status() === PHP_SESSION_NONE) session_start();
 
-$site_name  = get_setting('site_name') ?: 'GovExam Portal';
+$site_name  = get_setting('site_name') ?: 'Exam Duniya';
 $page_title = 'Privacy Policy';
 $meta_desc  = 'Privacy Policy of ' . $site_name;
 

@@ -58,9 +58,33 @@ try {
 }
 
 $page_title = 'Blog' . ($category ? " — $category" : '');
+require_once ROOT . '/includes/seo.php';
+require_once ROOT . '/includes/schema.php';
+
+// Only the plain /blog/ first page is indexable; category/search/sort/page
+// views are noindex,follow (no duplicate thin pages).
+$is_filtered = ($search !== '' || $sort !== 'newest' || $page > 1 || $category !== '');
+if (!$is_filtered) {
+    seo_set([
+        'title'       => 'Exam Duniya Blog: Preparation Tips, Study Material & Exam Guides',
+        'description' => seo_clamp_description('Read preparation strategies, study material, current affairs and exam guides for SSC, UPSC, Railway, Banking and State government exams on the Exam Duniya blog.'),
+        'canonical'   => '/blog/',
+        'robots'      => 'index,follow',
+    ]);
+} else {
+    seo_set(['canonical' => '/blog/', 'robots' => 'noindex,follow']);
+}
 
 require_once ROOT . '/includes/header.php';
 require_once ROOT . '/includes/navbar.php';
+
+schema_breadcrumbs([
+    ['name' => 'Home', 'url' => '/'],
+    ['name' => 'Blog', 'url' => '/blog/'],
+]);
+if (!$is_filtered) {
+    schema_collection_page('Exam Duniya Blog', '/blog/');
+}
 
 function build_blog_url($overrides = [])
 {
@@ -194,7 +218,7 @@ function build_blog_url($overrides = [])
                                 </div>
                             </div>
                             <div class="mt-2">
-                                <a href="/pages/blog/detail.php?slug=<?= urlencode($blog['slug']) ?>"
+                                <a href="<?= htmlspecialchars(blog_url($blog['slug'])) ?>"
                                    class="btn btn-outline-primary btn-sm w-100">
                                     Read More <i class="fa-solid fa-arrow-right ms-1"></i>
                                 </a>

@@ -1,5 +1,5 @@
 <?php
-$site_name  = get_setting('site_name') ?: 'GovExam Portal';
+$site_name  = get_setting('site_name') ?: 'Exam Duniya';
 $site_logo  = get_setting('site_logo');
 $current    = $_SERVER['REQUEST_URI'] ?? '/';
 $is_logged  = !empty($_SESSION['user_id']);
@@ -12,7 +12,7 @@ $user_avatar= $is_logged ? ($_SESSION['avatar'] ?? '') : '';
     <!-- Brand / Logo -->
     <a class="navbar-brand fw-bold text-primary d-flex align-items-center gap-2" href="/">
       <?php if (!empty($site_logo)): ?>
-        <img src="/uploads/site/<?= htmlspecialchars($site_logo) ?>" alt="<?= htmlspecialchars($site_name) ?>" style="height:40px;width:auto;max-width:200px;">
+        <img src="/uploads/site/<?= htmlspecialchars($site_logo) ?>" alt="<?= htmlspecialchars($site_name) ?>" class="site-logo">
       <?php else: ?>
         <i class="fa-solid fa-graduation-cap fs-4"></i>
         <span><?= htmlspecialchars($site_name) ?></span>
@@ -66,14 +66,21 @@ $user_avatar= $is_logged ? ($_SESSION['avatar'] ?? '') : '';
           <i class="fa-solid fa-magnifying-glass"></i>
         </button>
 
+        <!-- Premium 3D: dark/light theme toggle (enhanced by premium-3d.js) -->
+        <button class="fx-theme-toggle" type="button" data-theme-toggle aria-label="Toggle theme">
+          <i class="fa-solid fa-moon"></i>
+        </button>
+
         <?php if ($is_logged): ?>
           <!-- User avatar dropdown -->
           <div class="dropdown">
             <button class="btn btn-sm btn-outline-primary dropdown-toggle d-flex align-items-center gap-2"
                     data-bs-toggle="dropdown">
               <?php if ($user_avatar): ?>
-                <img src="/uploads/avatars/<?= htmlspecialchars($user_avatar) ?>"
-                     class="rounded-circle" width="24" height="24" alt="avatar">
+                <img src="<?= htmlspecialchars(get_avatar_url($user_avatar)) ?>"
+                     class="rounded-circle" width="24" height="24" alt="avatar"
+                     onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
+                <i class="fa-solid fa-circle-user" style="display:none"></i>
               <?php else: ?>
                 <i class="fa-solid fa-circle-user"></i>
               <?php endif; ?>

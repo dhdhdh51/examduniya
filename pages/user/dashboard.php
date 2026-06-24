@@ -119,6 +119,8 @@ if (!empty($results)) {
     $avg_pct  = round(array_sum($pcts) / count($pcts));
 }
 
+require_once ROOT . '/includes/seo.php';
+seo_set(['robots' => 'noindex,follow']);
 require_once ROOT . '/includes/header.php';
 require_once ROOT . '/includes/navbar.php';
 ?>
@@ -139,7 +141,11 @@ require_once ROOT . '/includes/navbar.php';
             <div class="d-flex align-items-center gap-3 gap-md-4 flex-wrap position-relative" style="z-index:1;">
                 <div class="flex-shrink-0">
                     <?php if ($user['avatar']): ?>
-                        <img src="/uploads/avatars/<?= htmlspecialchars($user['avatar']) ?>" class="dash-avatar" alt="avatar">
+                        <img src="<?= htmlspecialchars(get_avatar_url($user['avatar'])) ?>" class="dash-avatar" alt="avatar"
+                             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                        <div class="dash-avatar-fallback" style="display:none;">
+                            <i class="fa-solid fa-user fa-2x text-white"></i>
+                        </div>
                     <?php else: ?>
                         <div class="dash-avatar-fallback">
                             <i class="fa-solid fa-user fa-2x text-white"></i>
@@ -341,7 +347,7 @@ require_once ROOT . '/includes/navbar.php';
                                 <label class="form-label">Avatar</label>
                                 <?php if ($user['avatar']): ?>
                                     <div class="mb-2">
-                                        <img src="/uploads/avatars/<?= htmlspecialchars($user['avatar']) ?>"
+                                        <img src="<?= htmlspecialchars(get_avatar_url($user['avatar'])) ?>"
                                              class="rounded-circle" width="60" height="60" alt="Current avatar">
                                     </div>
                                 <?php endif; ?>

@@ -47,7 +47,7 @@ $csrf = csrf_token();
     <div class="alert alert-warning">
       <i class="fas fa-triangle-exclamation me-2"></i>
       The <code>ai_providers</code> table was not found. Please import
-      <code>database/ai_providers.sql</code> into your database, then reload this page.
+      <code>database/schema.sql</code> into your database, then reload this page.
     </div>
   <?php else: ?>
 
